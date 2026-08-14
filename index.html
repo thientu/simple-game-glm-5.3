@@ -910,10 +910,10 @@ function update(dt) {
   } else {
     var ne = nearestEnemy(player.x, player.y);
     if (ne) player.aim = Math.atan2(ne.y - player.y, ne.x - player.x);
-    else if (joy.active && (joy.x || joy.y)) player.aim = Math.atan2(joy.y, joy.x);
+    else if (joy.active && (joy.x || joy.y)) player.aim = Math.atan2(2 * joy.y - joy.x, joy.x + 2 * joy.y);
   }
 
-  /* movement in plane */
+  /* movement — input is screen-space, rotated into plane so W/A/S/D match the screen */
   var mx = 0, my = 0;
   if (keys.w || keys.arrowup) my -= 1;
   if (keys.s || keys.arrowdown) my += 1;
@@ -922,8 +922,9 @@ function update(dt) {
   if (joy.active) { mx += joy.x; my += joy.y; }
   var ml = Math.hypot(mx, my);
   if (ml > 1) { mx /= ml; my /= ml; }
-  player.x = clamp(player.x + mx * player.speed * dt, 60, ARENA - 60);
-  player.y = clamp(player.y + my * player.speed * dt, 60, ARENA - 60);
+  var pmx = (mx + 2 * my) / 2, pmy = (2 * my - mx) / 2;
+  player.x = clamp(player.x + pmx * player.speed * dt, 60, ARENA - 60);
+  player.y = clamp(player.y + pmy * player.speed * dt, 60, ARENA - 60);
   collideSolids(player);
 
   /* vertical: leap physics + terrain following */
