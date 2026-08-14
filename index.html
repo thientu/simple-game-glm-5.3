@@ -195,11 +195,11 @@ body.touch #touchUI { display: block; }
     <div class="skillbar">
       <div class="skill-slot" title="Sword">
         <svg viewBox="0 0 24 24"><path d="M6 20 L18 6 M18 6 l-4.5 1 M18 6 l-1 4.5 M8.5 17.5 l-2 -2 M6.5 19.5 l-1.5 -1.5"/></svg>
-        <span class="key">LMB</span><div class="cdmask" id="cdSwing"></div>
+        <span class="key">LMB / J</span><div class="cdmask" id="cdSwing"></div>
       </div>
       <div class="skill-slot" title="Fireball">
         <svg viewBox="0 0 24 24"><path d="M12 3 q6 7 0 18 q-6 -11 0 -18 Z M12 8 q3 4 0 9"/></svg>
-        <span class="key">RMB</span><div class="cdmask" id="cdFire"></div>
+        <span class="key">RMB / K</span><div class="cdmask" id="cdFire"></div>
       </div>
       <div class="skill-slot" title="Frost Nova">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2 v4 M12 18 v4 M2 12 h4 M18 12 h4 M5 5 l3 3 M16 16 l3 3 M19 5 l-3 3 M8 16 l-3 3"/></svg>
@@ -241,7 +241,7 @@ body.touch #touchUI { display: block; }
     <div class="ov-title">Ashes of Sanctuary</div>
     <div class="ov-sub">Ossuary Court · 2.5D</div>
     <div class="controls-hint">
-      <div><b>WASD</b> Move &nbsp; <b>LMB</b> Sword &nbsp; <b>RMB</b> Fireball</div>
+      <div><b>WASD</b> Move &nbsp; <b>LMB / J</b> Sword &nbsp; <b>RMB / K</b> Fireball</div>
       <div><b>SPACE</b> Leap &nbsp; <b>1</b> Frost nova &nbsp; <b>Q</b> Potion</div>
       <div><b>B</b> Shop &nbsp; <b>M</b> Mute</div>
       <div style="margin-top:10px; color:var(--faint)">Leap over the swarms. Shatter urns for gold. Knock foes into pillars.</div>
@@ -464,7 +464,7 @@ function collideSolids(a) {
 /* ---------- input ---------- */
 var keys = {};
 var mouse = { x: 0, y: 0, down: false };
-var pointerIsMouse = true;
+var pointerIsMouse = false;
 var joy = { active: false, id: -1, ox: 0, oy: 0, x: 0, y: 0 };
 var touchAttack = false;
 
@@ -473,7 +473,9 @@ window.addEventListener("keydown", function (e) {
   keys[k] = true;
   if (["arrowup", "arrowdown", "arrowleft", "arrowright", " "].indexOf(k) >= 0) e.preventDefault();
   if (state === "menu" || state === "dead") { if (k === "enter") startRun(); return; }
+  if (k === "j" || k === "k") pointerIsMouse = false;
   if (k === "1") castNova();
+  else if (k === "k") castFire();
   else if (k === "q") usePotion();
   else if (k === " ") doLeap();
   else if (k === "m") muted = !muted;
@@ -934,7 +936,7 @@ function update(dt) {
     player.z += (ground - player.z) * Math.min(1, 14 * dt);
   }
 
-  if ((mouse.down || touchAttack) && player.swingT <= 0) doSwing();
+  if ((mouse.down || touchAttack || keys.j) && player.swingT <= 0) doSwing();
 
   /* enemies */
   for (var i = 0; i < enemies.length; i++) {
