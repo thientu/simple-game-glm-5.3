@@ -272,6 +272,14 @@ body.touch #touchUI { display: block; }
   </div>
 </div>
 
+<div class="overlay" id="ov-pause">
+  <div class="panel-frame" style="text-align:center; padding: 40px 34px; width: min(420px, 92vw);">
+    <div class="ov-title" style="font-size:clamp(22px,3vw,32px)">Paused</div>
+    <div class="ov-sub">The court holds its breath</div>
+    <button class="btn-d4 primary" id="btnResume" style="margin-top:26px">Resume</button>
+  </div>
+</div>
+
 <div class="overlay" id="ov-death">
   <div class="panel-frame">
     <div class="ov-title" style="color:#c6523c">You Have Fallen</div>
@@ -473,6 +481,8 @@ window.addEventListener("keydown", function (e) {
   keys[k] = true;
   if (["arrowup", "arrowdown", "arrowleft", "arrowright", " "].indexOf(k) >= 0) e.preventDefault();
   if (state === "menu" || state === "dead") { if (k === "enter") startRun(); return; }
+  if ((k === "escape" || k === "p") && (state === "play" || state === "intermission")) { pauseGame(); return; }
+  if ((k === "escape" || k === "p") && state === "pause") { resumeGame(); return; }
   if (k === "j" || k === "k") pointerIsMouse = false;
   if (k === "1") castNova();
   else if (k === "k") castFire();
@@ -858,6 +868,9 @@ function renderShop() {
 }
 function openShop() { resumeState = state; state = "shop"; renderShop(); document.getElementById("ov-shop").classList.add("open"); }
 function closeShop() { document.getElementById("ov-shop").classList.remove("open"); state = resumeState; }
+function pauseGame() { resumeState = state; state = "pause"; document.getElementById("ov-pause").classList.add("open"); }
+function resumeGame() { document.getElementById("ov-pause").classList.remove("open"); state = resumeState; }
+document.getElementById("btnResume").addEventListener("click", resumeGame);
 document.getElementById("btnShopOpen").addEventListener("click", openShop);
 document.getElementById("btnShopClose").addEventListener("click", closeShop);
 document.getElementById("btnNext").addEventListener("click", nextWaveNow);
