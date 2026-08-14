@@ -863,7 +863,7 @@ var shopBought = { whet: 0, skin: 0, chalice: 0, boots: 0 };
 var SHOP = [
   { id: "potion", n: "Healing Potion", d: "+1 to your belt (max 5). Restores 45% of life.", price: function () { return 40; },
     can: function () { return player.potions < 5; }, buy: function () { player.potions++; } },
-  { id: "whet", n: "Whetstone", d: "+15% sword damage.", price: function () { return Math.round(90 * Math.pow(1.5, shopBought.whet)); },
+  { id: "whet", n: "Whetstone", d: "+15% sword damage.", price: function () { return Math.round(60 * Math.pow(1.5, shopBought.whet)); },
     can: function () { return true; }, buy: function () { player.swordDmg *= 1.15; shopBought.whet++; } },
   { id: "skin", n: "Iron Skin", d: "+5 armor — each point blunts about 1.4% of damage.", price: function () { return Math.round(80 * Math.pow(1.5, shopBought.skin)); },
     can: function () { return true; }, buy: function () { player.armor += 5; shopBought.skin++; } },
