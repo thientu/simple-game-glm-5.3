@@ -186,7 +186,7 @@ body.touch #touchUI { display: block; }
     <div class="tr num" style="color:var(--gold)">Gold <span id="uiGold">0</span></div>
   </div>
   <div id="interBar" class="hidden">
-    <span class="t"><b>Wave cleared</b> — next in <span id="interNum" class="num">6</span>s</span>
+    <span class="t"><b id="interLabel">Wave cleared</b> — next in <span id="interNum" class="num">6</span>s</span>
     <button id="btnNext">Begin Now</button>
     <button id="btnShopOpen">Shop</button>
   </div>
@@ -239,14 +239,14 @@ body.touch #touchUI { display: block; }
       <circle cx="50" cy="60" r="9" fill="#8f3020"/>
     </svg>
     <div class="ov-title">Ashes of Sanctuary</div>
-    <div class="ov-sub">Ossuary Court · 2.5D</div>
+    <div class="ov-sub">Five Realms · 2.5D</div>
     <div class="controls-hint">
       <div><b>WASD</b> Move &nbsp; <b>LMB / J</b> Sword &nbsp; <b>RMB / K</b> Fireball</div>
       <div><b>SPACE</b> Leap &nbsp; <b>1</b> Frost nova &nbsp; <b>Q</b> Potion</div>
       <div><b>B</b> Shop &nbsp; <b>M</b> Mute</div>
-      <div style="margin-top:10px; color:var(--faint)">Leap over the swarms. Shatter urns for gold. Knock foes into pillars.</div>
+      <div style="margin-top:10px; color:var(--faint)">Five waves clear a realm, then the way opens. Shatter chests, drink from shrines, and mind the lava.</div>
     </div>
-    <button class="btn-d4 primary" id="btnStart">Enter the Court</button>
+    <button class="btn-d4 primary" id="btnStart">Enter the Realms</button>
     <div class="best-line">Deepest wave <b id="uiBest" class="num">—</b></div>
   </div>
 </div>
@@ -347,7 +347,8 @@ var SFX = {
   level: [520, 780, 0.5, "sine", 0.09], death: [200, 40, 0.9, "sawtooth", 0.13],
   buy: [900, 1200, 0.12, "sine", 0.05], potion: [500, 300, 0.3, "sine", 0.07],
   smash: [110, 30, 0.18, "square", 0.1], leap: [300, 620, 0.18, "sine", 0.05],
-  land: [90, 35, 0.22, "triangle", 0.12]
+  land: [90, 35, 0.22, "triangle", 0.12], shrine: [400, 820, 0.6, "sine", 0.08],
+  shard: [1000, 1400, 0.1, "sine", 0.04], burn: [200, 80, 0.15, "sawtooth", 0.06]
 };
 function sfx(type) {
   if (muted) return;
@@ -367,10 +368,10 @@ function sfx(type) {
 /* ---------- state ---------- */
 var state = "menu", resumeState = "play";
 var wave = 0, kills = 0, spawnQueue = [], spawnTimer = 0, interTimer = 0;
-var shake = 0, gameTime = 0;
+var shake = 0, gameTime = 0, hazardTick = 0;
 var enemies = [], projectiles = [], pickups = [], particles = [], floats = [], decals = [], effects = [], props = [];
 var camSX = 0, camSY = 0;
-var bestWave = +(localStorage.getItem("aos-iso-best") || 0);
+var bestWave = +(localStorage.getItem("aos-realms-best") || 0);
 
 var player = {};
 function resetPlayer() {
@@ -392,66 +393,231 @@ function resetGame() {
   resetPlayer();
   enemies = []; projectiles = []; pickups = []; particles = []; floats = []; decals = []; effects = [];
   wave = 0; kills = 0; spawnQueue = []; spawnTimer = 0; shake = 0; gameTime = 0;
-  genProps();
-  camSX = projX(player.x, player.y); camSY = projY(player.x, player.y, 0);
+  mapIndex = 0; travelPending = false;
+  buildMap(false);
 }
 
-/* ---------- environment ---------- */
-function genElevation() {
-  elev = new Float32Array(GRID_N * GRID_N);
-  var c = ARENA / 2;
-  function raise(cx, cy, rad, h) {
-    var g0x = Math.max(0, Math.floor((cx - rad) / TILE)), g1x = Math.min(GRID_N - 1, Math.ceil((cx + rad) / TILE));
-    var g0y = Math.max(0, Math.floor((cy - rad) / TILE)), g1y = Math.min(GRID_N - 1, Math.ceil((cy + rad) / TILE));
-    for (var gx = g0x; gx <= g1x; gx++) for (var gy = g0y; gy <= g1y; gy++) {
-      var wx = gx * TILE + TILE / 2, wy = gy * TILE + TILE / 2;
-      if (Math.hypot(wx - cx, wy - cy) < rad) {
-        var i = gx + gy * GRID_N;
-        elev[i] = Math.max(elev[i], h);
+/* ---------- environment: five realms ---------- */
+var pools = [], vents = [], shrine = null;
+var mapIndex = 0, travelPending = false;
+var MAPS = [
+  {
+    id: "ossuary", name: "Ossuary Court", sub: "Bone and stone",
+    tile: function (gx, gy, h, hv) {
+      if (h > 16) return "#242019";
+      if (h > 0) return "#201c16";
+      return hv > 0.5 ? "#1a1712" : "#18150f";
+    },
+    tint: null, ambient: "ember",
+    gen: function () {
+      var c = ARENA / 2;
+      props.push({ kind: "altar", x: c, y: c, r: 44, solid: true, depthBias: 0 });
+      for (var i = 0; i < 8; i++) {
+        var a = i * TAU / 8 + TAU / 16;
+        props.push({ kind: "pillar", x: c + Math.cos(a) * 330, y: c + Math.sin(a) * 330, r: 20, solid: true, seed: rand(0, 9) });
+      }
+      var corners = [[620, 620], [ARENA - 620, 620], [620, ARENA - 620], [ARENA - 620, ARENA - 620]];
+      for (var k = 0; k < 4; k++) props.push({ kind: "brazier", x: corners[k][0], y: corners[k][1], r: 13, seed: rand(0, 9) });
+      spawnBreakables("urn", 6);
+      spawnBreakables("bonepile", 4);
+      spawnChest();
+      spawnShrine(c - 820, c);
+      elevRaise(c, c, 165, 15);
+      for (var r = 0; r < 30; r++) {
+        var gx = irand(3, GRID_N - 4), gy = irand(3, GRID_N - 4);
+        if (Math.hypot(gx * TILE - c, gy * TILE - c) > 340) elev[gx + gy * GRID_N] = Math.max(elev[gx + gy * GRID_N], 7);
+      }
+    }
+  },
+  {
+    id: "chapel", name: "Crimson Chapel", sub: "Hymns long gone",
+    tile: function (gx, gy, h, hv) {
+      var cy = gy * TILE + TILE / 2 - ARENA / 2;
+      if (Math.abs(cy) < 80) return hv > 0.5 ? "#3a1410" : "#33110d";
+      if (h > 0) return "#221b16";
+      return hv > 0.5 ? "#1b1713" : "#181410";
+    },
+    tint: "rgba(180,50,40,0.045)", ambient: "mote",
+    gen: function () {
+      var c = ARENA / 2;
+      elevRaise(c, c - 500, 150, 22);
+      props.push({ kind: "reliquary", x: c, y: c - 520, r: 40, solid: true });
+      for (var row = 0; row < 4; row++) {
+        var py = c - 240 + row * 190;
+        props.push({ kind: "pew", x: c - 250, y: py, r: 30, solid: true, seed: rand(0, 9) });
+        props.push({ kind: "pew", x: c + 250, y: py, r: 30, solid: true, seed: rand(0, 9) });
+      }
+      for (var g = 0; g < 6; g++) {
+        var gx = c - 550 + g * 220;
+        props.push({ kind: "glass", x: gx, y: 120, r: 10, seed: g });
+      }
+      for (var cd = 0; cd < 6; cd++) {
+        var a2 = cd * TAU / 6 + 0.5;
+        props.push({ kind: "candelabra", x: c + Math.cos(a2) * 520, y: c + Math.sin(a2) * 520, r: 10, seed: rand(0, 9) });
+      }
+      spawnBreakables("hymnal", 5);
+      spawnBreakables("urn", 3);
+      spawnChest();
+      spawnShrine(c + 820, c);
+    }
+  },
+  {
+    id: "frost", name: "Frostfell Wastes", sub: "Where heroes froze",
+    tile: function (gx, gy, h, hv) {
+      if (h > 10) return "#262c34";
+      if (h > 0) return "#20252d";
+      return hv > 0.5 ? "#1c2026" : "#181c21";
+    },
+    tint: "rgba(120,150,180,0.06)", ambient: "snow",
+    gen: function () {
+      var c = ARENA / 2;
+      elevRaise(c, c, 130, 12);
+      props.push({ kind: "bonfire", x: c, y: c, r: 26, solid: true, seed: rand(0, 9) });
+      for (var w = 0; w < 5; w++) {
+        var a = rand(0, TAU), d = rand(420, 900);
+        props.push({ kind: "frozen", x: c + Math.cos(a) * d, y: c + Math.sin(a) * d, r: 15, solid: true, seed: rand(0, 9) });
+      }
+      for (var t = 0; t < 6; t++) {
+        var a2 = rand(0, TAU), d2 = rand(300, 1000);
+        props.push({ kind: "frosttree", x: c + Math.cos(a2) * d2, y: c + Math.sin(a2) * d2, r: 18, solid: true, seed: rand(0, 9) });
+      }
+      for (var s = 0; s < 8; s++) {
+        var a3 = rand(0, TAU), d3 = rand(260, 1050);
+        props.push({ kind: "icespike", x: c + Math.cos(a3) * d3, y: c + Math.sin(a3) * d3, r: 12, seed: rand(0, 9) });
+      }
+      spawnBreakables("iceblock", 5);
+      spawnChest();
+      spawnShrine(c, c + 820);
+      for (var r = 0; r < 22; r++) {
+        var gx = irand(3, GRID_N - 4), gy = irand(3, GRID_N - 4);
+        if (Math.hypot(gx * TILE - c, gy * TILE - c) > 300) elev[gx + gy * GRID_N] = Math.max(elev[gx + gy * GRID_N], 7);
+      }
+    }
+  },
+  {
+    id: "ember", name: "Ember Hollow", sub: "The mountain's heart",
+    tile: function (gx, gy, h, hv) {
+      if (h > 14) return "#2a1c14";
+      if (h > 0) return "#221710";
+      return hv > 0.5 ? "#1d1512" : "#1a1210";
+    },
+    cracks: true, tint: "rgba(255,90,30,0.05)", ambient: "ember",
+    gen: function () {
+      var c = ARENA / 2;
+      elevRaise(c, c, 150, 16);
+      props.push({ kind: "reliquary", x: c, y: c, r: 40, solid: true, dark: true });
+      var corners = [[420, 420], [ARENA - 420, 420], [420, ARENA - 420], [ARENA - 420, ARENA - 420]];
+      for (var p = 0; p < 4; p++) pools.push({ x: corners[p][0], y: corners[p][1], r: 150 });
+      for (var v = 0; v < 5; v++) {
+        var a = v * TAU / 5 + 0.7;
+        vents.push({ x: c + Math.cos(a) * 560, y: c + Math.sin(a) * 560, r: 14, t: rand(0, 4.2), erupting: false, tick: 0 });
+      }
+      for (var o = 0; o < 6; o++) {
+        var a2 = rand(0, TAU), d2 = rand(400, 1000);
+        props.push({ kind: "obsidian", x: c + Math.cos(a2) * d2, y: c + Math.sin(a2) * d2, r: 18, solid: true, seed: rand(0, 9) });
+      }
+      for (var cr = 0; cr < 7; cr++) {
+        var a3 = rand(0, TAU), d3 = rand(280, 1050);
+        props.push({ kind: "crystal", x: c + Math.cos(a3) * d3, y: c + Math.sin(a3) * d3, r: 12, seed: rand(0, 9) });
+      }
+      spawnBreakables("magmarock", 5);
+      spawnChest();
+      spawnShrine(c - 820, c + 200);
+    }
+  },
+  {
+    id: "bog", name: "Mirefen Bog", sub: "It swallows all",
+    tile: function (gx, gy, h, hv) {
+      if (h > 6) return "#1d2418";
+      if (h > 0) return "#181f13";
+      return hv > 0.5 ? "#141a13" : "#11160f";
+    },
+    tint: "rgba(70,130,90,0.05)", ambient: "spore",
+    gen: function () {
+      var c = ARENA / 2;
+      pools.push({ x: c - 500, y: c + 300, r: 190, water: true });
+      pools.push({ x: c + 560, y: c - 260, r: 160, water: true });
+      for (var s = 0; s < 5; s++) {
+        var a = s * TAU / 5 + 0.3;
+        props.push({ kind: "stone", x: c + Math.cos(a) * 380, y: c + Math.sin(a) * 380, r: 18, solid: true, seed: rand(0, 9) });
+      }
+      for (var m = 0; m < 7; m++) {
+        var a2 = rand(0, TAU), d2 = rand(380, 1050);
+        props.push({ kind: "mangrove", x: c + Math.cos(a2) * d2, y: c + Math.sin(a2) * d2, r: 20, solid: true, seed: rand(0, 9) });
+      }
+      for (var w = 0; w < 4; w++) {
+        var a3 = rand(0, TAU), d3 = rand(300, 900);
+        props.push({ kind: "wisp", x: c + Math.cos(a3) * d3, y: c + Math.sin(a3) * d3, r: 8, seed: rand(0, 9) });
+      }
+      spawnBreakables("shroom", 6);
+      spawnChest();
+      spawnShrine(c + 700, c + 700);
+      for (var r = 0; r < 18; r++) {
+        var gx = irand(3, GRID_N - 4), gy = irand(3, GRID_N - 4);
+        elev[gx + gy * GRID_N] = Math.max(elev[gx + gy * GRID_N], 8);
       }
     }
   }
-  raise(c, c, 165, 15);                              // altar dais
-  var corners = [[620, 620], [ARENA - 620, 620], [620, ARENA - 620], [ARENA - 620, ARENA - 620]];
-  for (var k = 0; k < 4; k++) raise(corners[k][0], corners[k][1], 235, 24);
-  for (var r = 0; r < 30; r++) {                     // scattered rubble tiles
-    var gx = irand(3, GRID_N - 4), gy = irand(3, GRID_N - 4);
-    var wx = gx * TILE, wy = gy * TILE;
-    if (Math.hypot(wx - c, wy - c) > 340) elev[gx + gy * GRID_N] = Math.max(elev[gx + gy * GRID_N], 7);
+];
+function curMap() { return MAPS[mapIndex]; }
+function elevRaise(cx, cy, rad, h) {
+  var g0x = Math.max(0, Math.floor((cx - rad) / TILE)), g1x = Math.min(GRID_N - 1, Math.ceil((cx + rad) / TILE));
+  var g0y = Math.max(0, Math.floor((cy - rad) / TILE)), g1y = Math.min(GRID_N - 1, Math.ceil((cy + rad) / TILE));
+  for (var gx = g0x; gx <= g1x; gx++) for (var gy = g0y; gy <= g1y; gy++) {
+    var wx = gx * TILE + TILE / 2, wy = gy * TILE + TILE / 2;
+    if (Math.hypot(wx - cx, wy - cy) < rad) {
+      var i = gx + gy * GRID_N;
+      elev[i] = Math.max(elev[i], h);
+    }
   }
 }
-function genProps() {
-  props = [];
-  var c = ARENA / 2;
-  props.push({ kind: "altar", x: c, y: c, r: 44, solid: true, depthBias: 0 });
-  for (var i = 0; i < 8; i++) {                      // pillar ring around dais
-    var a = i * TAU / 8 + TAU / 16;
-    props.push({ kind: "pillar", x: c + Math.cos(a) * 330, y: c + Math.sin(a) * 330, r: 20, solid: true, seed: rand(0, 9) });
-  }
-  var corners = [[620, 620], [ARENA - 620, 620], [620, ARENA - 620], [ARENA - 620, ARENA - 620]];
-  for (var k = 0; k < 4; k++) props.push({ kind: "brazier", x: corners[k][0], y: corners[k][1], r: 13, seed: rand(0, 9) });
-  spawnUrns(6);
-}
-function spawnUrns(n) {
-  var urnCount = 0;
-  for (var i = 0; i < props.length; i++) if (props[i].kind === "urn" && !props[i].dead) urnCount++;
-  for (var s = urnCount; s < n; s++) {
+var BREAK = {
+  urn:       { hp: 1, coins: [3, 8],  debris: "#8f8672" },
+  bonepile:  { hp: 1, coins: [2, 5],  debris: "#c8bda0" },
+  hymnal:    { hp: 1, coins: [2, 6],  debris: "#7d4a3a" },
+  iceblock:  { hp: 1, coins: [4, 9],  debris: "#9fc7dd" },
+  magmarock: { hp: 1, coins: [4, 9],  debris: "#e07a3a" },
+  shroom:    { hp: 1, coins: [2, 5],  debris: "#6fae8f" },
+  chest:     { hp: 2, coins: [12, 22], debris: "#d4a94f" }
+};
+function spawnBreakables(kind, n) {
+  for (var i = 0; i < n; i++) {
     var tries = 0, x, y;
     do {
-      x = rand(160, ARENA - 160); y = rand(160, ARENA - 160);
+      x = rand(200, ARENA - 200); y = rand(200, ARENA - 200);
       tries++;
     } while (dist2(x, y, player.x, player.y) < 280 * 280 && tries < 25);
-    props.push({ kind: "urn", x: x, y: y, r: 11, hp: 1, coins: irand(3, 8), seed: rand(0, 9) });
+    props.push({ kind: kind, x: x, y: y, r: kind === "chest" ? 16 : 12, hp: BREAK[kind].hp, seed: rand(0, 9), breakable: true, damaged: false });
   }
 }
-function damageUrn(u) {
-  if (u.dead) return;
-  u.dead = true;
-  burstP(u.x, u.y, 10, "#8f8672", 10, 150);
-  burstP(u.x, u.y, 6, "#5f584b", 24, 90);
-  var n = u.coins;
-  for (var i = 0; i < n; i++) pickups.push({ kind: "coin", x: u.x + rand(-10, 10), y: u.y + rand(-10, 10), vx: rand(-50, 50), vy: rand(-50, 50), bob: rand(0, TAU) });
-  if (Math.random() < 0.1) pickups.push({ kind: "potion", x: u.x, y: u.y, vx: 0, vy: 0, bob: rand(0, TAU) });
+function spawnChest() {
+  var a = rand(0, TAU);
+  props.push({ kind: "chest", x: ARENA / 2 + Math.cos(a) * 700, y: ARENA / 2 + Math.sin(a) * 700, r: 16, hp: 2, seed: rand(0, 9), breakable: true, damaged: false });
+}
+function spawnShrine(x, y) { shrine = { x: clamp(x, 140, ARENA - 140), y: clamp(y, 140, ARENA - 140), used: false }; }
+function buildMap(keepPlayer) {
+  props = []; pools = []; vents = []; shrine = null;
+  elev = new Float32Array(GRID_N * GRID_N);
+  if (!keepPlayer) { player.x = ARENA / 2; player.y = ARENA - 300; player.z = 0; player.air = false; }
+  curMap().gen();
+  camSX = projX(player.x, player.y);
+  camSY = projY(player.x, player.y, 0);
+}
+function hitProp(p) {
+  p.hp--;
+  if (p.hp > 0) {
+    p.damaged = true;
+    burstP(p.x, p.y, 10, BREAK[p.kind].debris, 5, 110);
+    sfx("hit");
+    return;
+  }
+  p.dead = true;
+  var conf = BREAK[p.kind];
+  burstP(p.x, p.y, 12, conf.debris, 12, 160);
+  dropCoins(p.x, p.y, irand(conf.coins[0], conf.coins[1]));
+  if (Math.random() < (p.kind === "chest" ? 0.4 : 0.12)) pickups.push({ kind: "potion", x: p.x, y: p.y, vx: 0, vy: 0, bob: rand(0, TAU) });
+  if (Math.random() < (p.kind === "chest" ? 0.7 : 0.2)) pickups.push({ kind: "shard", x: p.x, y: p.y, vx: 0, vy: 0, bob: rand(0, TAU) });
+  if (p.kind === "chest") addFloat(p.x, p.y, 40, "Treasure!", C.gold, 15);
   sfx("smash");
   shake = Math.min(shake + 0.12, 0.5);
 }
@@ -592,6 +758,11 @@ function splat(x, y, r) {
   decals.push({ x: x, y: y, r: r, rot: rand(0, TAU), alpha: rand(0.22, 0.4) });
   if (decals.length > 130) decals.shift();
 }
+function dropCoins(x, y, n) {
+  for (var i = 0; i < n; i++) {
+    pickups.push({ kind: "coin", x: x + rand(-14, 14), y: y + rand(-14, 14), vx: rand(-40, 40), vy: rand(-40, 40), bob: rand(0, TAU) });
+  }
+}
 
 /* ---------- combat ---------- */
 function rollDmg(base) {
@@ -614,13 +785,13 @@ function doSwing() {
   }
   for (var u = 0; u < props.length; u++) {
     var un = props[u];
-    if (un.kind !== "urn" || un.dead) continue;
+    if (!un.breakable || un.dead) continue;
     var du = Math.hypot(un.x - player.x, un.y - player.y);
     if (du < player.swordRange + un.r) {
       var duA = Math.atan2(un.y - player.y, un.x - player.x) - player.aim;
       while (duA > Math.PI) duA -= TAU;
       while (duA < -Math.PI) duA += TAU;
-      if (Math.abs(duA) < player.swordArc / 2) { damageUrn(un); hitAny = true; }
+      if (Math.abs(duA) < player.swordArc / 2) { hitProp(un); hitAny = true; }
     }
   }
   sfx("swing");
@@ -696,7 +867,7 @@ function castNova() {
   }
   for (var u = 0; u < props.length; u++) {
     var un = props[u];
-    if (un.kind === "urn" && !un.dead && Math.hypot(un.x - player.x, un.y - player.y) < player.novaR + un.r) damageUrn(un);
+    if (un.breakable && !un.dead && Math.hypot(un.x - player.x, un.y - player.y) < player.novaR + un.r) hitProp(un);
   }
 }
 function doLeap() {
@@ -722,6 +893,10 @@ function landPlayer() {
       if (Math.hypot(e.x - player.x, e.y - player.y) < 110 + e.r) {
         damageEnemy(e, { v: Math.round(player.quake * rand(0.9, 1.1)), crit: false }, Math.atan2(e.y - player.y, e.x - player.x));
       }
+    }
+    for (var u = 0; u < props.length; u++) {
+      var un = props[u];
+      if (un.breakable && !un.dead && Math.hypot(un.x - player.x, un.y - player.y) < 110 + un.r) hitProp(un);
     }
   }
 }
@@ -835,13 +1010,12 @@ function startWave(n) {
   wave = n;
   spawnQueue = buildWave(n);
   spawnTimer = 1.2;
-  spawnUrns(6);
   banner("Wave " + n);
-  document.getElementById("uiWaveTitle").textContent = "Wave " + n;
+  document.getElementById("uiWaveTitle").textContent = curMap().name + " — Wave " + n;
 }
 function waveCleared() {
   state = "intermission";
-  interTimer = 6;
+  interTimer = 7;
   var bonus = 10 + wave;
   player.gold += bonus;
   var heal = Math.round(player.maxhp * 0.15);
@@ -849,13 +1023,23 @@ function waveCleared() {
     player.hp = Math.min(player.maxhp, player.hp + heal);
     addFloat(player.x, player.y, player.z + 62, "+" + heal + " life", "#8fb35a", 15);
   }
-  banner("Wave Cleared");
+  travelPending = (wave % 5 === 0);
+  banner(travelPending ? "Realm Cleared" : "Wave Cleared");
   addFloat(player.x, player.y, player.z + 48, "+" + bonus + " gold bounty", C.gold, 15);
+  document.getElementById("interLabel").textContent = travelPending ? "Realm cleared" : "Wave cleared";
+  document.getElementById("btnNext").textContent = travelPending ? "Descend Deeper" : "Begin Now";
   document.getElementById("interBar").classList.remove("hidden");
-  if (wave > bestWave) { bestWave = wave; localStorage.setItem("aos-iso-best", String(bestWave)); }
+  if (wave > bestWave) { bestWave = wave; localStorage.setItem("aos-realms-best", String(bestWave)); }
 }
 function nextWaveNow() {
   document.getElementById("interBar").classList.add("hidden");
+  if (travelPending) {
+    travelPending = false;
+    mapIndex = (mapIndex + 1) % MAPS.length;
+    pickups = [];
+    buildMap(false);
+    banner(curMap().name);
+  }
   startWave(wave + 1);
   state = "play";
 }
@@ -911,6 +1095,7 @@ function die() {
   var stats = document.getElementById("deathStats");
   stats.innerHTML =
     '<div class="death-stat"><div class="v num">' + wave + '</div><div class="l">Wave</div></div>' +
+    '<div class="death-stat"><div class="v num">' + (mapIndex + 1) + ' / ' + MAPS.length + '</div><div class="l">Realm</div></div>' +
     '<div class="death-stat"><div class="v num">' + player.level + '</div><div class="l">Level</div></div>' +
     '<div class="death-stat"><div class="v num">' + kills + '</div><div class="l">Kills</div></div>' +
     '<div class="death-stat"><div class="v num">' + Math.floor(player.gold) + '</div><div class="l">Gold</div></div>';
@@ -936,6 +1121,70 @@ function banner(text) {
   bannerEl.classList.add("show");
 }
 
+/* ---------- hazards & shrine ---------- */
+function updateHazards(dt) {
+  hazardTick -= dt;
+  var tick = hazardTick <= 0;
+  if (tick) hazardTick = 0.5;
+
+  /* lava pools */
+  for (var i = 0; i < pools.length; i++) {
+    var pool = pools[i];
+    if (pool.water) {
+      /* bog water: harmless, just slows slightly */
+      if (dist2(player.x, player.y, pool.x, pool.y) < pool.r * pool.r * 0.6) player.slowed = true;
+      continue;
+    }
+    if (tick && !player.air && dist2(player.x, player.y, pool.x, pool.y) < pool.r * pool.r * 0.55) {
+      hurtPlayer(7); addFloat(player.x, player.y, player.z + 34, "Seared", "#e07a3a", 13); sfx("burn");
+    }
+    if (tick) for (var e = 0; e < enemies.length; e++) {
+      var en = enemies[e];
+      if (!en.dead && dist2(en.x, en.y, pool.x, pool.y) < pool.r * pool.r * 0.55) {
+        en.hp -= 7; en.hitT = 0.1;
+        if (en.hp <= 0) killEnemy(en);
+      }
+    }
+  }
+
+  /* lava vents */
+  for (var v = 0; v < vents.length; v++) {
+    var vent = vents[v];
+    vent.t += dt;
+    var cyc = vent.t % 4.2;
+    var was = vent.erupting;
+    vent.erupting = cyc > 3.1 && cyc < 4.0;
+    if (vent.erupting) {
+      if (Math.random() < dt * 30) burstP(vent.x + rand(-10, 10), vent.y + rand(-10, 10), 6, "#e07a3a", 2, 60, -200);
+      if (tick) {
+        if (!player.air && dist2(player.x, player.y, vent.x, vent.y) < 85 * 85) { hurtPlayer(9); sfx("burn"); }
+        for (var e2 = 0; e2 < enemies.length; e2++) {
+          var en2 = enemies[e2];
+          if (!en2.dead && dist2(en2.x, en2.y, vent.x, vent.y) < 85 * 85) {
+            en2.hp -= 9; en2.hitT = 0.1;
+            if (en2.hp <= 0) killEnemy(en2);
+          }
+        }
+      }
+    } else if (was && cyc >= 4.0) {
+      burstP(vent.x, vent.y, 10, "#6b6152", 6, 80, 300);
+    }
+  }
+
+  /* healing shrine */
+  if (shrine && !shrine.used && player.hp < player.maxhp * 0.999) {
+    if (dist2(player.x, player.y, shrine.x, shrine.y) < 42 * 42) {
+      shrine.used = true;
+      var heal = Math.round(player.maxhp * 0.4);
+      player.hp = Math.min(player.maxhp, player.hp + heal);
+      addFloat(shrine.x, shrine.y, 70, "+" + heal, "#8fb35a", 18);
+      burstP(shrine.x, shrine.y, 30, "#8fb35a", 14, 120, 60);
+      effects.push({ kind: "nova", x: shrine.x, y: shrine.y, z: 10, t: 0, dur: 0.7, maxR: 120 });
+      sfx("shrine");
+    }
+  }
+}
+
 /* ---------- update ---------- */
 function update(dt) {
   gameTime += dt;
@@ -958,6 +1207,8 @@ function update(dt) {
   }
 
   /* movement — input is screen-space, rotated into plane so W/A/S/D match the screen */
+  player.slowed = false;
+  updateHazards(dt);
   var mx = 0, my = 0;
   if (keys.w || keys.arrowup) my -= 1;
   if (keys.s || keys.arrowdown) my += 1;
@@ -967,8 +1218,9 @@ function update(dt) {
   var ml = Math.hypot(mx, my);
   if (ml > 1) { mx /= ml; my /= ml; }
   var pmx = (mx + 2 * my) / 2, pmy = (2 * my - mx) / 2;
-  player.x = clamp(player.x + pmx * player.speed * dt, 60, ARENA - 60);
-  player.y = clamp(player.y + pmy * player.speed * dt, 60, ARENA - 60);
+  var pspd = player.speed * (player.slowed ? 0.6 : 1);
+  player.x = clamp(player.x + pmx * pspd * dt, 60, ARENA - 60);
+  player.y = clamp(player.y + pmy * pspd * dt, 60, ARENA - 60);
   collideSolids(player);
 
   /* vertical: leap physics + terrain following */
@@ -994,9 +1246,9 @@ function update(dt) {
     var dk = Math.exp(-8 * dt);
     e.kx *= dk; e.ky *= dk;
     var spd = Math.hypot(e.kx, e.ky);
-    var hitProp = collideSolids(e);
-    if (hitProp && spd > 200) {
-      var pa = Math.atan2(e.y - hitProp.y, e.x - hitProp.x);
+    var hitSolid = collideSolids(e);
+    if (hitSolid && spd > 200) {
+      var pa = Math.atan2(e.y - hitSolid.y, e.x - hitSolid.x);
       damageEnemy(e, { v: 8 + wave, crit: false }, pa);
       addFloat(e.x, e.y, e.z + e.r + 14, "Smashed", "#e8a04f", 13);
       burstP(e.x, e.y, e.z + 14, "#8f8672", 6, 130);
@@ -1103,9 +1355,9 @@ function update(dt) {
     if (pr.dead) continue;
     for (var w = 0; w < props.length; w++) {
       var un = props[w];
-      if (un.kind !== "urn" || un.dead) continue;
+      if (!un.breakable || un.dead) continue;
       var ru = un.r + pr.r;
-      if (dist2(pr.x, pr.y, un.x, un.y) < ru * ru) { damageUrn(un); pr.dead = true; break; }
+      if (dist2(pr.x, pr.y, un.x, un.y) < ru * ru) { hitProp(un); pr.dead = true; break; }
     }
   }
   projectiles = projectiles.filter(function (p2) { return !p2.dead; });
@@ -1125,6 +1377,11 @@ function update(dt) {
     if (pd < player.r + 9) {
       pk.dead = true;
       if (pk.kind === "coin") { player.gold++; sfx("coin"); }
+      else if (pk.kind === "shard") {
+        player.ess = Math.min(player.maxess, player.ess + 30);
+        addFloat(player.x, player.y, player.z + 34, "+30 essence", C.ess, 13);
+        sfx("shard");
+      }
       else { player.potions = Math.min(5, player.potions + 1); addFloat(player.x, player.y, player.z + 34, "+1 potion", "#b8543c", 13); sfx("buy"); }
     }
   }
@@ -1144,14 +1401,26 @@ function update(dt) {
   for (var ef = 0; ef < effects.length; ef++) effects[ef].t += dt;
   effects = effects.filter(function (e3) { return e3.t < e3.dur; });
 
-  /* ambient embers (plane space around camera) */
-  if (Math.random() < dt * 2.5) {
+  /* ambient per realm */
+  var amb = curMap().ambient;
+  if (amb === "ember" && Math.random() < dt * 2.5) {
     var pa2 = rand(0, TAU), prd = rand(200, 620);
     particles.push({
       x: player.x + Math.cos(pa2) * prd, y: player.y + Math.sin(pa2) * prd, z: rand(10, 120),
       vx: rand(-10, 10), vy: rand(-10, 10), vz: rand(-22, -8),
       t: 0, dur: rand(1.5, 3), r: rand(1, 2), color: "rgba(160,90,50,0.5)", grav: -4
     });
+  } else if (amb === "snow" && Math.random() < dt * 14) {
+    particles.push({ x: player.x + rand(-vw, vw) * 0.7, y: player.y + rand(-vw, vw) * 0.7, z: rand(180, 320),
+      vx: rand(-26, -6), vy: rand(6, 26), vz: rand(-50, -34), t: 0, dur: rand(3, 5), r: rand(1, 2.2), color: "rgba(220,228,238,0.55)", grav: -2 });
+  } else if (amb === "spore" && Math.random() < dt * 3) {
+    var pa3 = rand(0, TAU), prd3 = rand(150, 520);
+    particles.push({ x: player.x + Math.cos(pa3) * prd3, y: player.y + Math.sin(pa3) * prd3, z: rand(6, 60),
+      vx: rand(-8, 8), vy: rand(-8, 8), vz: rand(6, 18), t: 0, dur: rand(2, 4), r: rand(1, 2), color: "rgba(120,200,150,0.4)", grav: -3 });
+  } else if (amb === "mote" && Math.random() < dt * 3) {
+    var pa4 = rand(0, TAU), prd4 = rand(150, 520);
+    particles.push({ x: player.x + Math.cos(pa4) * prd4, y: player.y + Math.sin(pa4) * prd4, z: rand(20, 160),
+      vx: rand(-5, 5), vy: rand(-5, 5), vz: rand(-6, 6), t: 0, dur: rand(2, 4), r: rand(0.8, 1.6), color: "rgba(220,190,120,0.35)", grav: 0 });
   }
 
   /* spawning / wave flow */
@@ -1174,6 +1443,7 @@ function update(dt) {
 
 /* ---------- render ---------- */
 function drawFloor() {
+  var M = curMap();
   /* plane bounds of viewport */
   var x0 = camSX - vw / 2, x1 = camSX + vw / 2, y0 = camSY - vh * 0.58, y1 = camSY + vh * 0.42;
   var cs = [[x0, y0], [x1, y0], [x0, y1], [x1, y1]];
@@ -1219,16 +1489,51 @@ function drawFloor() {
       }
       /* top */
       var hv = hash2(gx, gy);
-      ctx.fillStyle = h > 16 ? C.daisTop : (h > 0 ? "#201c16" : (hv > 0.5 ? C.floorA : C.floorB));
+      ctx.fillStyle = M.tile(gx, gy, h, hv);
       ctx.beginPath();
       ctx.moveTo(N[0], N[1]); ctx.lineTo(E[0], E[1]); ctx.lineTo(S[0], S[1]); ctx.lineTo(W[0], W[1]);
       ctx.closePath(); ctx.fill();
-      if (hv > 0.93 && h === 0) {  /* bone speckle */
-        ctx.fillStyle = "rgba(160,148,120,0.12)";
+      if (M.cracks && h === 0 && hash2(gx * 7.3, gy * 5.1) > 0.95) {
+        var mx = (N[0] + E[0] + S[0] + W[0]) / 4, my = (N[1] + E[1] + S[1] + W[1]) / 4;
+        ctx.fillStyle = "rgba(224,122,58,0.16)";
+        ctx.beginPath();
+        ctx.moveTo(mx, my - 14); ctx.lineTo(mx + 22, my); ctx.lineTo(mx, my + 14); ctx.lineTo(mx - 22, my);
+        ctx.closePath(); ctx.fill();
+        ctx.fillStyle = "rgba(244,180,110,0.22)";
+        ctx.beginPath();
+        ctx.moveTo(mx, my - 6); ctx.lineTo(mx + 9, my); ctx.lineTo(mx, my + 6); ctx.lineTo(mx - 9, my);
+        ctx.closePath(); ctx.fill();
+      }
+      if (hv > 0.93 && h === 0 && !M.cracks) {  /* bone speckle */
+        ctx.fillStyle = "rgba(160,148,120,0.1)";
         ctx.beginPath();
         ctx.moveTo(N[0], N[1]); ctx.lineTo(E[0], E[1]); ctx.lineTo(S[0], S[1]); ctx.lineTo(W[0], W[1]);
         ctx.closePath(); ctx.fill();
       }
+    }
+  }
+
+  /* pools (lava / water) */
+  for (var pl = 0; pl < pools.length; pl++) {
+    var pool = pools[pl];
+    var psx = projX(pool.x, pool.y), psy = projY(pool.x, pool.y, 0);
+    if (pool.water) {
+      ctx.fillStyle = "rgba(18,28,32,0.75)";
+      ctx.beginPath(); ctx.ellipse(psx, psy, pool.r * SQ2, pool.r / SQ2, 0, 0, TAU); ctx.fill();
+      ctx.strokeStyle = "rgba(90,130,120,0.2)";
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.ellipse(psx, psy, pool.r * SQ2, pool.r / SQ2, 0, 0, TAU); ctx.stroke();
+      ctx.fillStyle = "rgba(120,170,160,0.08)";
+      var wob2 = Math.sin(gameTime * 2 + pl) * 6;
+      ctx.beginPath(); ctx.ellipse(psx + wob2, psy, pool.r * 0.5 * SQ2, pool.r * 0.5 / SQ2, 0, 0, TAU); ctx.fill();
+    } else {
+      var pulse = 0.5 + 0.5 * Math.sin(gameTime * 2.4 + pl * 1.7);
+      ctx.fillStyle = "#4a1a08";
+      ctx.beginPath(); ctx.ellipse(psx, psy, pool.r * SQ2, pool.r / SQ2, 0, 0, TAU); ctx.fill();
+      ctx.fillStyle = "rgba(200,90,30,0.8)";
+      ctx.beginPath(); ctx.ellipse(psx, psy, pool.r * 0.8 * SQ2, pool.r * 0.8 / SQ2, 0, 0, TAU); ctx.fill();
+      ctx.fillStyle = "rgba(244,170,90," + (0.35 + 0.25 * pulse) + ")";
+      ctx.beginPath(); ctx.ellipse(psx + Math.sin(gameTime + pl) * 5, psy, pool.r * 0.45 * SQ2, pool.r * 0.45 / SQ2, 0, 0, TAU); ctx.fill();
     }
   }
 
@@ -1375,6 +1680,399 @@ function drawUrn(p) {
   ctx.fillRect(sx - 4, sy - 30, 8, 5);
   ctx.strokeStyle = "rgba(20,16,12,0.6)"; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(sx - 6, sy - 14); ctx.lineTo(sx + 6, sy - 12); ctx.stroke();
+}
+function boxIso(x, y, hw, hd, h, topC, faceC) {
+  var a = [projX(x - hw, y - hd), projY(x - hw, y - hd, h)];
+  var b = [projX(x + hw, y - hd), projY(x + hw, y - hd, h)];
+  var c2 = [projX(x + hw, y + hd), projY(x + hw, y + hd, h)];
+  var d = [projX(x - hw, y + hd), projY(x - hw, y + hd, h)];
+  ctx.fillStyle = faceC;
+  ctx.beginPath(); ctx.moveTo(d[0], d[1]); ctx.lineTo(c2[0], c2[1]); ctx.lineTo(c2[0], c2[1] + h); ctx.lineTo(d[0], d[1] + h); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(c2[0], c2[1]); ctx.lineTo(b[0], b[1]); ctx.lineTo(b[0], b[1] + h); ctx.lineTo(c2[0], c2[1] + h); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = topC;
+  ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.lineTo(c2[0], c2[1]); ctx.lineTo(d[0], d[1]); ctx.closePath(); ctx.fill();
+}
+function drawPew(p) {
+  var sx = projX(p.x, p.y), sy = projY(p.x, p.y, groundZ(p.x, p.y));
+  isoShadow(sx, sy, 26, 0.4);
+  boxIso(p.x, p.y, 16, 78, 16, "#3a2a1c", "#1c130c");
+  ctx.strokeStyle = "rgba(12,9,6,0.7)"; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(sx - 6, sy - 22); ctx.lineTo(sx - 6, sy + 22); ctx.moveTo(sx + 6, sy - 22); ctx.lineTo(sx + 6, sy + 22); ctx.stroke();
+}
+function drawCandelabra(p) {
+  var sx = projX(p.x, p.y), sy = projY(p.x, p.y, groundZ(p.x, p.y));
+  isoShadow(sx, sy, 12, 0.35);
+  ctx.strokeStyle = "#4a3a28"; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx, sy - 52); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(sx - 12, sy - 40); ctx.lineTo(sx + 12, sy - 40); ctx.stroke();
+  for (var i = -1; i <= 1; i++) {
+    var fy = i === 0 ? sy - 58 : sy - 45;
+    var fx = i === 0 ? sx : sx + i * 12;
+    ctx.fillStyle = "#c8bda0"; ctx.fillRect(fx - 1.5, fy - 8, 3, 8);
+    var fl = 1 + Math.sin(gameTime * 10 + p.seed + i) * 0.3;
+    ctx.fillStyle = "#e0a050";
+    ctx.beginPath(); ctx.arc(fx, fy - 10, 1.8 * fl, 0, TAU); ctx.fill();
+  }
+  ctx.save(); ctx.globalCompositeOperation = "lighter";
+  var g = ctx.createRadialGradient(sx, sy - 48, 2, sx, sy - 48, 40);
+  g.addColorStop(0, "rgba(230,160,80,0.28)"); g.addColorStop(1, "rgba(160,60,20,0)");
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.arc(sx, sy - 48, 40, 0, TAU); ctx.fill();
+  ctx.restore();
+}
+function drawGlass(p) {
+  var sx = projX(p.x, p.y), sy = projY(p.x, p.y, groundZ(p.x, p.y));
+  var cols = ["#3a5a8a", "#8a3a3a", "#8a7a3a", "#3a7a6a", "#5a4a8a", "#8a5a3a"];
+  var col = cols[p.seed % cols.length];
+  var H = 96, W2 = 17;
+  ctx.fillStyle = "rgba(10,8,6,0.5)";
+  ctx.fillRect(sx - W2 - 2, sy - 4, (W2 + 2) * 2, 8);
+  ctx.save();
+  ctx.globalAlpha = 0.82;
+  ctx.fillStyle = col;
+  ctx.beginPath();
+  ctx.moveTo(sx - W2, sy); ctx.lineTo(sx - W2, sy - H + W2);
+  ctx.quadraticCurveTo(sx, sy - H - W2, sx + W2, sy - H + W2);
+  ctx.lineTo(sx + W2, sy); ctx.closePath(); ctx.fill();
+  ctx.restore();
+  ctx.strokeStyle = "rgba(20,14,10,0.8)"; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(sx - W2, sy); ctx.lineTo(sx - W2, sy - H + W2);
+  ctx.quadraticCurveTo(sx, sy - H - W2, sx + W2, sy - H + W2);
+  ctx.lineTo(sx + W2, sy); ctx.closePath(); ctx.stroke();
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(sx, sy); ctx.lineTo(sx, sy - H - 6);
+  ctx.moveTo(sx - W2, sy - H / 2); ctx.lineTo(sx + W2, sy - H / 2);
+  ctx.stroke();
+  ctx.save(); ctx.globalCompositeOperation = "lighter";
+  var g = ctx.createRadialGradient(sx, sy - H / 2, 3, sx, sy - H / 2, 46);
+  g.addColorStop(0, "rgba(200,180,120,0.14)"); g.addColorStop(1, "rgba(120,80,40,0)");
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.arc(sx, sy - H / 2, 46, 0, TAU); ctx.fill();
+  ctx.restore();
+}
+function drawReliquary(p) {
+  var gz = groundZ(p.x, p.y);
+  var sx = projX(p.x, p.y), sy = projY(p.x, p.y, gz);
+  var H = 30;
+  isoShadow(sx, sy, 48, 0.5);
+  boxIso(p.x, p.y, 40, 40, H, p.dark ? "#221510" : "#2e2318", "#0f0c09");
+  var cx = projX(p.x, p.y), cy2 = projY(p.x, p.y, H);
+  ctx.fillStyle = p.dark ? "#7a4a2c" : "#8a6a2c";
+  ctx.beginPath();
+  ctx.moveTo(cx, cy2 - 26); ctx.lineTo(cx + 14, cy2 - 8); ctx.lineTo(cx, cy2 + 8); ctx.lineTo(cx - 14, cy2 - 8);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = p.dark ? "#e07a3a" : "#d4a94f"; ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy2 - 20); ctx.lineTo(cx, cy2 + 4);
+  ctx.moveTo(cx - 7, cy2 - 10); ctx.lineTo(cx + 7, cy2 - 10);
+  ctx.stroke();
+  ctx.save(); ctx.globalCompositeOperation = "lighter";
+  var glow = p.dark ? "rgba(224,122,58,0.2)" : "rgba(212,169,79,0.18)";
+  var g2 = ctx.createRadialGradient(cx, cy2 - 12, 3, cx, cy2 - 12, 70);
+  g2.addColorStop(0, glow); g2.addColorStop(1, "rgba(120,60,20,0)");
+  ctx.fillStyle = g2;
+  ctx.beginPath(); ctx.arc(cx, cy2 - 12, 70, 0, TAU); ctx.fill();
+  ctx.restore();
+}
+function drawFrozen(p) {
+  var sx = projX(p.x, p.y), sy = projY(p.x, p.y, groundZ(p.x, p.y));
+  isoShadow(sx, sy, 17, 0.4);
+  ctx.fillStyle = "rgba(140,180,200,0.3)";
+  ctx.beginPath(); ctx.moveTo(sx - 12, sy + 2); ctx.lineTo(sx - 9, sy - 44); ctx.lineTo(sx + 9, sy - 44); ctx.lineTo(sx + 12, sy + 2); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = "rgba(190,220,235,0.6)"; ctx.lineWidth = 1.4; ctx.stroke();
+  ctx.save();
+  ctx.translate(sx, sy);
+  ctx.strokeStyle = "rgba(60,80,100,0.65)"; ctx.lineWidth = 2.4; ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(0, -8); ctx.lineTo(0, 0);
+  ctx.moveTo(0, -4); ctx.lineTo(-8, -2);
+  ctx.moveTo(0, -4); ctx.lineTo(8, -2);
+  ctx.stroke();
+  ctx.fillStyle = "rgba(70,90,110,0.7)";
+  ctx.beginPath(); ctx.arc(0, -14, 5, 0, TAU); ctx.fill();
+  ctx.restore();
+  ctx.strokeStyle = "rgba(230,245,252,0.8)"; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(sx - 6, sy - 40); ctx.lineTo(sx - 3, sy - 6); ctx.stroke();
+}
+function drawBonfire(p) {
+  var sx = projX(p.x, p.y), sy = projY(p.x, p.y, groundZ(p.x, p.y));
+  isoShadow(sx, sy, 30, 0.45);
+  ctx.strokeStyle = "#3a2a1c"; ctx.lineWidth = 5; ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(sx - 16, sy + 4); ctx.lineTo(sx + 16, sy - 4);
+  ctx.moveTo(sx - 16, sy - 4); ctx.lineTo(sx + 16, sy + 4);
+  ctx.stroke();
+  var fl = 1 + Math.sin(gameTime * 8 + p.seed) * 0.16;
+  ctx.save(); ctx.globalCompositeOperation = "lighter";
+  var g = ctx.createRadialGradient(sx, sy - 24, 4, sx, sy - 24, 110 * fl);
+  g.addColorStop(0, "rgba(240,150,70,0.42)"); g.addColorStop(1, "rgba(160,60,20,0)");
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.arc(sx, sy - 24, 110 * fl, 0, TAU); ctx.fill();
+  ctx.restore();
+  ctx.fillStyle = "#c25a28";
+  ctx.beginPath();
+  ctx.moveTo(sx, sy - 58 * fl);
+  ctx.quadraticCurveTo(sx + 16, sy - 30, sx + 10, sy - 8);
+  ctx.lineTo(sx - 10, sy - 8);
+  ctx.quadraticCurveTo(sx - 16, sy - 30, sx, sy - 58 * fl);
+  ctx.fill();
+  ctx.fillStyle = "#f4c07a";
+  ctx.beginPath();
+  ctx.moveTo(sx, sy - 40 * fl);
+  ctx.quadraticCurveTo(sx + 7, sy - 22, sx + 5, sy - 8);
+  ctx.lineTo(sx - 5, sy - 8);
+  ctx.quadraticCurveTo(sx - 7, sy - 22, sx, sy - 40 * fl);
+  ctx.fill();
+}
+function drawFrostTree(p) {
+  var sx = projX(p.x, p.y), sy = projY(p.x, p.y, groundZ(p.x, p.y));
+  isoShadow(sx, sy, 22, 0.42);
+  ctx.strokeStyle = "#2c2620"; ctx.lineWidth = 5; ctx.lineCap = "round";
+  ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx + Math.sin(p.seed) * 4, sy - 62); ctx.stroke();
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(sx, sy - 34); ctx.lineTo(sx - 22, sy - 54);
+  ctx.moveTo(sx, sy - 44); ctx.lineTo(sx + 20, sy - 66);
+  ctx.moveTo(sx, sy - 56); ctx.lineTo(sx - 14, sy - 76);
+  ctx.stroke();
+  ctx.strokeStyle = "rgba(215,228,238,0.7)"; ctx.lineWidth = 2.4;
+  ctx.beginPath();
+  ctx.moveTo(sx, sy - 34); ctx.lineTo(sx - 22, sy - 54);
+  ctx.moveTo(sx, sy - 44); ctx.lineTo(sx + 20, sy - 66);
+  ctx.stroke();
+  ctx.strokeStyle = "rgba(215,228,238,0.5)";
+  ctx.beginPath(); ctx.moveTo(sx + Math.sin(p.seed) * 4, sy - 62); ctx.lineTo(sx + Math.sin(p.seed) * 4, sy - 50); ctx.stroke();
+}
+function drawIceSpike(p) {
+  var sx = projX(p.x, p.y), sy = projY(p.x, p.y, groundZ(p.x, p.y));
+  isoShadow(sx, sy, 13, 0.35);
+  ctx.fillStyle = "rgba(150,190,215,0.5)";
+  ctx.beginPath(); ctx.moveTo(sx - 8, sy); ctx.lineTo(sx - 5, sy - 34); ctx.lineTo(sx - 1, sy); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(sx + 1, sy); ctx.lineTo(sx + 6, sy - 46); ctx.lineTo(sx + 11, sy); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = "rgba(200,230,245,0.65)";
+  ctx.beginPath(); ctx.moveTo(sx + 2, sy); ctx.lineTo(sx + 5, sy - 40); ctx.lineTo(sx + 8, sy); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = "rgba(230,245,252,0.8)"; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(sx + 4, sy - 40); ctx.lineTo(sx + 5, sy - 6); ctx.stroke();
+}
+function drawObsidian(p) {
+  var sx = projX(p.x, p.y), sy = projY(p.x, p.y, groundZ(p.x, p.y));
+  var H = 96;
+  isoShadow(sx, sy, 22, 0.45);
+  ctx.fillStyle = "#141014";
+  ctx.beginPath(); ctx.moveTo(sx - 10, sy); ctx.lineTo(sx - 13, sy - H); ctx.lineTo(sx + 2, sy - H - 8); ctx.lineTo(sx + 13, sy - H + 6); ctx.lineTo(sx + 10, sy); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = "rgba(60,44,70,0.55)";
+  ctx.beginPath(); ctx.moveTo(sx - 6, sy); ctx.lineTo(sx - 8, sy - H); ctx.lineTo(sx - 1, sy - H - 6); ctx.lineTo(sx + 1, sy); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = "rgba(150,80,200,0.18)"; ctx.lineWidth = 1.4;
+  ctx.beginPath(); ctx.moveTo(sx + 4, sy - 8); ctx.lineTo(sx + 2, sy - 50); ctx.stroke();
+}
+function drawCrystal(p) {
+  var sx = projX(p.x, p.y), sy = projY(p.x, p.y, groundZ(p.x, p.y));
+  isoShadow(sx, sy, 13, 0.35);
+  ctx.save(); ctx.globalCompositeOperation = "lighter";
+  var g = ctx.createRadialGradient(sx, sy - 16, 2, sx, sy - 16, 40);
+  g.addColorStop(0, "rgba(244,170,90,0.3)"); g.addColorStop(1, "rgba(200,90,30,0)");
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.arc(sx, sy - 16, 40, 0, TAU); ctx.fill();
+  ctx.restore();
+  ctx.fillStyle = "rgba(230,140,70,0.75)";
+  ctx.beginPath(); ctx.moveTo(sx - 10, sy); ctx.lineTo(sx - 6, sy - 30); ctx.lineTo(sx - 2, sy); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = "rgba(248,190,120,0.85)";
+  ctx.beginPath(); ctx.moveTo(sx + 1, sy); ctx.lineTo(sx + 6, sy - 42); ctx.lineTo(sx + 12, sy); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = "rgba(230,140,70,0.55)";
+  ctx.beginPath(); ctx.moveTo(sx + 10, sy); ctx.lineTo(sx + 15, sy - 20); ctx.lineTo(sx + 18, sy); ctx.closePath(); ctx.fill();
+}
+function drawVent(v) {
+  var sx = projX(v.x, v.y), sy = projY(v.x, v.y, groundZ(v.x, v.y));
+  isoShadow(sx, sy, 16, 0.4);
+  ctx.fillStyle = "#2c1e14";
+  ctx.beginPath(); ctx.ellipse(sx, sy, 16 * SQ2, 16 / SQ2, 0, 0, TAU); ctx.fill();
+  ctx.fillStyle = "#1a120c";
+  ctx.beginPath(); ctx.ellipse(sx, sy, 9 * SQ2, 9 / SQ2, 0, 0, TAU); ctx.fill();
+  var cyc = v.t % 4.2;
+  var warm = clamp((cyc - 2.2) / 0.9, 0, 1);
+  if (v.erupting) {
+    var fh = 40 + Math.sin(gameTime * 30) * 8;
+    ctx.save(); ctx.globalCompositeOperation = "lighter";
+    var g = ctx.createRadialGradient(sx, sy - fh / 2, 3, sx, sy - fh / 2, 80);
+    g.addColorStop(0, "rgba(250,160,70,0.5)"); g.addColorStop(1, "rgba(200,60,20,0)");
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(sx, sy - fh / 2, 80, 0, TAU); ctx.fill();
+    ctx.restore();
+    ctx.fillStyle = "#e07a3a";
+    ctx.beginPath();
+    ctx.moveTo(sx, sy - fh - 18);
+    ctx.quadraticCurveTo(sx + 12, sy - fh / 2, sx + 8, sy);
+    ctx.lineTo(sx - 8, sy);
+    ctx.quadraticCurveTo(sx - 12, sy - fh / 2, sx, sy - fh - 18);
+    ctx.fill();
+  } else if (warm > 0) {
+    ctx.fillStyle = "rgba(224,122,58," + (0.25 + 0.3 * warm) + ")";
+    ctx.beginPath(); ctx.ellipse(sx, sy, 7 * SQ2, 7 / SQ2, 0, 0, TAU); ctx.fill();
+  } else {
+    ctx.fillStyle = "rgba(120,60,30,0.2)";
+    ctx.beginPath(); ctx.ellipse(sx, sy, 5 * SQ2, 5 / SQ2, 0, 0, TAU); ctx.fill();
+  }
+}
+function drawMangrove(p) {
+  var sx = projX(p.x, p.y), sy = projY(p.x, p.y, groundZ(p.x, p.y));
+  isoShadow(sx, sy, 26, 0.45);
+  ctx.strokeStyle = "#2a2e22"; ctx.lineWidth = 6; ctx.lineCap = "round";
+  ctx.beginPath(); ctx.moveTo(sx - 8, sy); ctx.lineTo(sx - 3, sy - 30); ctx.moveTo(sx + 8, sy); ctx.lineTo(sx + 3, sy - 30); ctx.stroke();
+  ctx.lineWidth = 8;
+  ctx.beginPath(); ctx.moveTo(sx, sy - 26); ctx.lineTo(sx + Math.sin(p.seed) * 6, sy - 78); ctx.stroke();
+  ctx.fillStyle = "#22301e";
+  ctx.beginPath(); ctx.ellipse(sx, sy - 92, 34, 20, 0, 0, TAU); ctx.fill();
+  ctx.fillStyle = "#2a3a24";
+  ctx.beginPath(); ctx.ellipse(sx - 12, sy - 100, 20, 12, 0, 0, TAU); ctx.fill();
+  ctx.strokeStyle = "rgba(90,120,80,0.5)"; ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  ctx.moveTo(sx - 6, sy - 80); ctx.lineTo(sx - 10, sy - 52);
+  ctx.moveTo(sx + 8, sy - 82); ctx.lineTo(sx + 12, sy - 58);
+  ctx.stroke();
+}
+function drawStone(p) {
+  var sx = projX(p.x, p.y), sy = projY(p.x, p.y, groundZ(p.x, p.y));
+  isoShadow(sx, sy, 22, 0.45);
+  ctx.save();
+  ctx.translate(sx, sy);
+  ctx.rotate(Math.sin(p.seed) * 0.08);
+  ctx.fillStyle = "#2c322a";
+  ctx.beginPath(); ctx.moveTo(-12, 2); ctx.lineTo(-9, -66); ctx.lineTo(8, -70); ctx.lineTo(13, 0); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = "rgba(140,180,140,0.3)"; ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  ctx.moveTo(0, -52); ctx.lineTo(-4, -40); ctx.lineTo(2, -30); ctx.lineTo(-2, -18);
+  ctx.stroke();
+  ctx.restore();
+}
+function drawWisp(p) {
+  var sx = projX(p.x, p.y), sy = projY(p.x, p.y, groundZ(p.x, p.y));
+  isoShadow(sx, sy, 9, 0.3);
+  ctx.strokeStyle = "#3a3a30"; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx, sy - 56); ctx.lineTo(sx + 14, sy - 56); ctx.stroke();
+  var fl = 0.8 + Math.sin(gameTime * 6 + p.seed) * 0.2;
+  ctx.save(); ctx.globalCompositeOperation = "lighter";
+  var g = ctx.createRadialGradient(sx + 14, sy - 62, 1, sx + 14, sy - 62, 34 * fl);
+  g.addColorStop(0, "rgba(160,230,180,0.5)"); g.addColorStop(1, "rgba(80,160,100,0)");
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.arc(sx + 14, sy - 62, 34 * fl, 0, TAU); ctx.fill();
+  ctx.restore();
+  ctx.fillStyle = "rgba(190,240,200,0.85)";
+  ctx.beginPath(); ctx.arc(sx + 14, sy - 62, 3.5 * fl, 0, TAU); ctx.fill();
+}
+function drawChest(p) {
+  var sx = projX(p.x, p.y), sy = projY(p.x, p.y, groundZ(p.x, p.y));
+  isoShadow(sx, sy, 19, 0.4);
+  boxIso(p.x, p.y, 15, 11, 12, "#3a2a18", "#1a120a");
+  var cx = projX(p.x, p.y), cy2 = projY(p.x, p.y, 12);
+  ctx.fillStyle = p.damaged ? "#4a3a20" : "#4a3820";
+  ctx.beginPath();
+  ctx.moveTo(cx - 15 * SQ2 * 0.9, cy2 - 8);
+  ctx.lineTo(cx, cy2 - 8 - 15 / SQ2 * 0.9 - 4);
+  ctx.lineTo(cx + 15 * SQ2 * 0.9, cy2 - 8);
+  ctx.lineTo(cx, cy2 - 8 + 15 / SQ2 * 0.9 - 4);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = "#8a6a2c"; ctx.lineWidth = 1.6;
+  ctx.strokeRect(cx - 6, cy2 - 10, 12, 8);
+  ctx.fillStyle = "#d4a94f";
+  ctx.fillRect(cx - 2, cy2 - 9, 4, 5);
+  if (p.damaged) {
+    ctx.strokeStyle = "rgba(20,14,8,0.9)"; ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.moveTo(cx - 10, cy2 + 2); ctx.lineTo(cx - 2, cy2 - 6); ctx.lineTo(cx + 8, cy2 - 2); ctx.stroke();
+  }
+}
+function drawBonePile(p) {
+  var sx = projX(p.x, p.y), sy = projY(p.x, p.y, groundZ(p.x, p.y));
+  isoShadow(sx, sy, 15, 0.35);
+  ctx.fillStyle = "#5a5244";
+  ctx.beginPath(); ctx.ellipse(sx, sy, 14 * SQ2, 14 / SQ2, 0, 0, TAU); ctx.fill();
+  ctx.strokeStyle = "#b8ad92"; ctx.lineWidth = 2.4; ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(sx - 10, sy - 3); ctx.lineTo(sx - 2, sy - 7);
+  ctx.moveTo(sx + 2, sy - 2); ctx.lineTo(sx + 10, sy - 6);
+  ctx.moveTo(sx - 5, sy - 8); ctx.lineTo(sx + 5, sy - 10);
+  ctx.stroke();
+  ctx.fillStyle = "#c8bda0";
+  ctx.beginPath(); ctx.arc(sx - 1, sy - 12, 4, 0, TAU); ctx.fill();
+  ctx.fillStyle = "#5a5244";
+  ctx.fillRect(sx - 2.6, sy - 13.5, 1.6, 1.6); ctx.fillRect(sx + 0.6, sy - 13.5, 1.6, 1.6);
+}
+function drawHymnal(p) {
+  var sx = projX(p.x, p.y), sy = projY(p.x, p.y, groundZ(p.x, p.y));
+  isoShadow(sx, sy, 13, 0.32);
+  boxIso(p.x, p.y, 11, 9, 9, "#4a2020", "#1c0e0e");
+  var cx = projX(p.x, p.y), cy2 = projY(p.x, p.y, 9);
+  ctx.fillStyle = "#7d4a3a";
+  ctx.beginPath(); ctx.moveTo(cx - 6, cy2); ctx.lineTo(cx - 3, cy2 - 5); ctx.lineTo(cx + 4, cy2 - 4); ctx.lineTo(cx + 2, cy2 + 1); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = "#d4a94f"; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(cx - 2, cy2 - 3); ctx.lineTo(cx + 1, cy2 - 1); ctx.stroke();
+}
+function drawIceBlock(p) {
+  var sx = projX(p.x, p.y), sy = projY(p.x, p.y, groundZ(p.x, p.y));
+  isoShadow(sx, sy, 15, 0.35);
+  ctx.fillStyle = "rgba(150,190,215,0.35)";
+  ctx.beginPath(); ctx.moveTo(sx - 13, sy); ctx.lineTo(sx - 11, sy - 24); ctx.lineTo(sx + 11, sy - 24); ctx.lineTo(sx + 13, sy); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = "rgba(200,230,245,0.6)"; ctx.lineWidth = 1.4; ctx.stroke();
+  ctx.fillStyle = "rgba(212,169,79,0.8)";
+  ctx.beginPath(); ctx.arc(sx, sy - 13, 4.5, 0, TAU); ctx.fill();
+  ctx.fillStyle = "rgba(250,220,150,0.9)";
+  ctx.beginPath(); ctx.arc(sx - 1, sy - 14, 1.8, 0, TAU); ctx.fill();
+}
+function drawMagmaRock(p) {
+  var sx = projX(p.x, p.y), sy = projY(p.x, p.y, groundZ(p.x, p.y));
+  isoShadow(sx, sy, 15, 0.4);
+  ctx.fillStyle = "#1c1210";
+  ctx.beginPath(); ctx.moveTo(sx - 14, sy); ctx.lineTo(sx - 8, sy - 18); ctx.lineTo(sx + 6, sy - 20); ctx.lineTo(sx + 13, sy - 4); ctx.lineTo(sx + 8, sy + 2); ctx.closePath(); ctx.fill();
+  var pulse = 0.6 + 0.4 * Math.sin(gameTime * 3 + p.seed);
+  ctx.strokeStyle = "rgba(224,122,58," + (0.5 + 0.3 * pulse) + ")"; ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  ctx.moveTo(sx - 8, sy - 4); ctx.lineTo(sx - 2, sy - 10); ctx.lineTo(sx + 4, sy - 6);
+  ctx.moveTo(sx + 2, sy - 14); ctx.lineTo(sx + 7, sy - 10);
+  ctx.stroke();
+}
+function drawShroom(p) {
+  var sx = projX(p.x, p.y), sy = projY(p.x, p.y, groundZ(p.x, p.y));
+  isoShadow(sx, sy, 13, 0.3);
+  var pulse = 0.7 + 0.3 * Math.sin(gameTime * 2.5 + p.seed);
+  ctx.save(); ctx.globalCompositeOperation = "lighter";
+  var g = ctx.createRadialGradient(sx, sy - 10, 1, sx, sy - 10, 26);
+  g.addColorStop(0, "rgba(110,174,143," + 0.3 * pulse + ")"); g.addColorStop(1, "rgba(60,120,90,0)");
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.arc(sx, sy - 10, 26, 0, TAU); ctx.fill();
+  ctx.restore();
+  ctx.fillStyle = "#c8c3ae";
+  ctx.fillRect(sx - 2, sy - 14, 4, 14);
+  ctx.fillStyle = "#6fae8f";
+  ctx.beginPath(); ctx.ellipse(sx, sy - 14, 10, 6, 0, Math.PI, 0); ctx.fill();
+  ctx.fillStyle = "#8fc9a8";
+  ctx.beginPath(); ctx.ellipse(sx + 9, sy - 8, 6, 4, 0, Math.PI, 0); ctx.fill();
+  ctx.fillStyle = "rgba(220,245,230,0.6)";
+  ctx.beginPath(); ctx.arc(sx - 3, sy - 16, 1.5, 0, TAU); ctx.arc(sx + 3, sy - 15, 1.2, 0, TAU); ctx.fill();
+}
+function drawShrineProp() {
+  var s = shrine;
+  var sx = projX(s.x, s.y), sy = projY(s.x, s.y, groundZ(s.x, s.y));
+  isoShadow(sx, sy, 20, 0.4);
+  ctx.fillStyle = "#2e2921";
+  ctx.beginPath(); ctx.moveTo(sx - 11, sy + 2); ctx.lineTo(sx - 8, sy - 58); ctx.lineTo(sx + 9, sy - 60); ctx.lineTo(sx + 12, sy); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = "#3a332a"; ctx.lineWidth = 1; ctx.stroke();
+  if (!s.used) {
+    var pulse = 0.6 + 0.4 * Math.sin(gameTime * 3);
+    ctx.save(); ctx.globalCompositeOperation = "lighter";
+    var g = ctx.createRadialGradient(sx, sy - 30, 2, sx, sy - 30, 56);
+    g.addColorStop(0, "rgba(143,179,90," + 0.4 * pulse + ")"); g.addColorStop(1, "rgba(80,140,60,0)");
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(sx, sy - 30, 56, 0, TAU); ctx.fill();
+    ctx.restore();
+    ctx.strokeStyle = "rgba(180,230,140," + (0.5 + 0.4 * pulse) + ")"; ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(sx, sy - 48); ctx.lineTo(sx - 5, sy - 38); ctx.lineTo(sx + 5, sy - 30); ctx.lineTo(sx - 4, sy - 20);
+    ctx.stroke();
+  } else {
+    ctx.strokeStyle = "rgba(90,90,80,0.4)"; ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.moveTo(sx, sy - 46); ctx.lineTo(sx - 4, sy - 36); ctx.lineTo(sx + 4, sy - 28); ctx.stroke();
+  }
 }
 function drawEnemy(e) {
   var sx = projX(e.x, e.y), sy = projY(e.x, e.y, e.z);
@@ -1600,6 +2298,17 @@ function drawPickup(pk) {
     ctx.beginPath(); ctx.arc(sx, sy, 4.5, 0, TAU); ctx.fill();
     ctx.fillStyle = C.gold;
     ctx.beginPath(); ctx.arc(sx, sy, 3, 0, TAU); ctx.fill();
+  } else if (pk.kind === "shard") {
+    ctx.save(); ctx.globalCompositeOperation = "lighter";
+    var g = ctx.createRadialGradient(sx, sy, 0, sx, sy, 12);
+    g.addColorStop(0, "rgba(140,180,230,0.5)"); g.addColorStop(1, "rgba(80,120,200,0)");
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(sx, sy, 12, 0, TAU); ctx.fill();
+    ctx.restore();
+    ctx.fillStyle = "#9fc0e8";
+    ctx.beginPath();
+    ctx.moveTo(sx, sy - 6); ctx.lineTo(sx + 4, sy); ctx.lineTo(sx, sy + 6); ctx.lineTo(sx - 4, sy);
+    ctx.closePath(); ctx.fill();
   } else {
     ctx.fillStyle = "#3a1510";
     ctx.beginPath(); ctx.arc(sx, sy, 7, 0, TAU); ctx.fill();
@@ -1630,11 +2339,13 @@ function render() {
   var draws = [];
   for (var pr0 = 0; pr0 < props.length; pr0++) (function (p) { draws.push({ d: p.x + p.y, fn: function () { drawProp(p); } }); })(props[pr0]);
   for (var en0 = 0; en0 < enemies.length; en0++) (function (e) { draws.push({ d: e.x + e.y + 1, fn: function () { drawEnemy(e); } }); })(enemies[en0]);
+  if (shrine) draws.push({ d: shrine.x + shrine.y + 0.5, fn: drawShrineProp });
   draws.push({ d: player.x + player.y + 2, fn: drawPlayer });
   draws.sort(function (a, b) { return a.d - b.d; });
   for (var dr = 0; dr < draws.length; dr++) draws[dr].fn();
 
   /* airborne layer */
+  for (var v = 0; v < vents.length; v++) drawVent(vents[v]);
   for (var pj = 0; pj < projectiles.length; pj++) drawProjectile(projectiles[pj]);
   for (var ef = 0; ef < effects.length; ef++) if (effects[ef].kind === "nova" || effects[ef].kind === "shock") drawEffect(effects[ef]);
 
@@ -1662,7 +2373,8 @@ function render() {
   ctx.globalAlpha = 1;
   ctx.restore();
 
-  /* depth fog + vignette */
+  /* realm tint + depth fog + vignette */
+  if (curMap().tint) { ctx.fillStyle = curMap().tint; ctx.fillRect(0, 0, vw, vh); }
   ctx.fillStyle = fogGrad;
   ctx.fillRect(0, 0, vw, vh);
   ctx.fillStyle = vignette;
@@ -1686,6 +2398,25 @@ function drawProp(p) {
   if (p.kind === "pillar") drawPillar(p);
   else if (p.kind === "brazier") drawBrazier(p);
   else if (p.kind === "altar") drawAltar(p);
+  else if (p.kind === "pew") drawPew(p);
+  else if (p.kind === "candelabra") drawCandelabra(p);
+  else if (p.kind === "glass") drawGlass(p);
+  else if (p.kind === "reliquary") drawReliquary(p);
+  else if (p.kind === "frozen") drawFrozen(p);
+  else if (p.kind === "bonfire") drawBonfire(p);
+  else if (p.kind === "frosttree") drawFrostTree(p);
+  else if (p.kind === "icespike") drawIceSpike(p);
+  else if (p.kind === "obsidian") drawObsidian(p);
+  else if (p.kind === "crystal") drawCrystal(p);
+  else if (p.kind === "mangrove") drawMangrove(p);
+  else if (p.kind === "stone") drawStone(p);
+  else if (p.kind === "wisp") drawWisp(p);
+  else if (p.kind === "chest") drawChest(p);
+  else if (p.kind === "bonepile") drawBonePile(p);
+  else if (p.kind === "hymnal") drawHymnal(p);
+  else if (p.kind === "iceblock") drawIceBlock(p);
+  else if (p.kind === "magmarock") drawMagmaRock(p);
+  else if (p.kind === "shroom") drawShroom(p);
   else if (p.kind === "urn") drawUrn(p);
 }
 
@@ -1716,12 +2447,9 @@ function updateHUD() {
 }
 
 /* ---------- main loop ---------- */
-genElevation();
 resetPlayer();
-genProps();
+buildMap(false);
 resize();
-camSX = projX(player.x, player.y);
-camSY = projY(player.x, player.y, 0);
 document.getElementById("uiBest").textContent = bestWave > 0 ? bestWave : "—";
 
 var last = performance.now();
