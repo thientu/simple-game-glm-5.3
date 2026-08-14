@@ -804,19 +804,21 @@ function buildWave(n) {
   if (n % 3 === 0) q.push("elite");
   return q;
 }
-function spawnEnemy(type) {
-  var T = ETYPES[type], x, y, tries = 0;
-  do {
-    var a = rand(0, TAU), rad = rand(ARENA * 0.42, ARENA * 0.47);
-    x = ARENA / 2 + Math.cos(a) * rad;
-    y = ARENA / 2 + Math.sin(a) * rad;
-    tries++;
-  } while (dist2(x, y, player.x, player.y) < 520 * 520 && tries < 20);
+function spawnEnemy(type, nx, ny) {
+  var T = ETYPES[type], x = nx, y = ny, tries = 0;
+  if (x == null) {
+    do {
+      var a = rand(0, TAU), rad = rand(ARENA * 0.42, ARENA * 0.47);
+      x = ARENA / 2 + Math.cos(a) * rad;
+      y = ARENA / 2 + Math.sin(a) * rad;
+      tries++;
+    } while (dist2(x, y, player.x, player.y) < 520 * 520 && tries < 20);
+  }
   enemies.push({
     type: type, x: x, y: y, z: groundZ(x, y), r: T.r, hp: T.hp(wave), maxhp: T.hp(wave),
     spd: T.spd * rand(0.9, 1.1), dmg: T.dmg + wave * 0.6, xp: T.xp + wave,
     gold: T.gold, atkCd: T.atkCd, atkT: rand(0, T.atkCd), hitT: 0, kx: 0, ky: 0, seed: rand(0, TAU),
-    slowT: 0, range: T.range || 0, wind: 0, dashT: 0, dashA: 0
+    slowT: 0, range: T.range || 0, wind: 0, dashT: 0, dashA: 0, sumT: type === "elite" ? 5 : 0
   });
   effects.push({ kind: "portal", x: x, y: y, z: 0, t: 0, dur: 0.6, maxR: T.r + 22 });
 }
@@ -995,6 +997,14 @@ function update(dt) {
     var dx = player.x - e.x, dy = player.y - e.y, d = Math.hypot(dx, dy) || 1;
     var wob = Math.sin(gameTime * 5 + e.seed) * 0.25;
     var airborne = player.air && (player.z - ground > 18);
+    if (e.type === "elite") {
+      e.sumT = Math.max(0, e.sumT - dt);
+      if (e.sumT <= 0 && enemies.length < 40) {
+        e.sumT = 8;
+        for (var si = 0; si < 2; si++) spawnEnemy("imp", e.x + rand(-60, 60), e.y + rand(-60, 60));
+        addFloat(e.x, e.y, e.z + e.r + 40, "Rise!", "#c6523c", 14);
+      }
+    }
     if (e.type === "charger") {
       if (e.dashT > 0) {
         e.dashT -= dt;
