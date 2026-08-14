@@ -820,6 +820,11 @@ function waveCleared() {
   interTimer = 6;
   var bonus = 10 + wave;
   player.gold += bonus;
+  var heal = Math.round(player.maxhp * 0.15);
+  if (player.hp < player.maxhp) {
+    player.hp = Math.min(player.maxhp, player.hp + heal);
+    addFloat(player.x, player.y, player.z + 62, "+" + heal + " life", "#8fb35a", 15);
+  }
   banner("Wave Cleared");
   addFloat(player.x, player.y, player.z + 48, "+" + bonus + " gold bounty", C.gold, 15);
   document.getElementById("interBar").classList.remove("hidden");
