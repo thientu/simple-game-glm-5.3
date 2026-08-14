@@ -2,7 +2,7 @@
 
 A Diablo-style 2.5D isometric action arena game in a single HTML file. No build step, no dependencies, no server — open `index.html` in a browser and play.
 
-**Play it:** https://thientu.github.io/test-5.3-game/
+**Play it:** https://thientu.github.io/simple-game-glm-5.3/
 
 ## Gameplay
 
