@@ -198,7 +198,7 @@ body.touch #touchUI { display: block; }
     <div class="skillbar">
       <div class="skill-slot" title="Sword">
         <svg viewBox="0 0 24 24"><path d="M6 20 L18 6 M18 6 l-4.5 1 M18 6 l-1 4.5 M8.5 17.5 l-2 -2 M6.5 19.5 l-1.5 -1.5"/></svg>
-        <span class="key">LMB</span><div class="cdmask" id="cdSwing"></div>
+        <span class="key">LMB / SPACE</span><div class="cdmask" id="cdSwing"></div>
       </div>
       <div class="skill-slot" title="Fireball">
         <svg viewBox="0 0 24 24"><path d="M12 3 q6 7 0 18 q-6 -11 0 -18 Z M12 8 q3 4 0 9"/></svg>
@@ -239,7 +239,7 @@ body.touch #touchUI { display: block; }
     <div class="ov-title">Ashes of Sanctuary</div>
     <div class="ov-sub">Bonefield Arena</div>
     <div class="controls-hint">
-      <div><b>WASD</b> Move &nbsp; <b>LMB</b> Sword &nbsp; <b>RMB</b> Fireball</div>
+      <div><b>WASD</b> Move &nbsp; <b>LMB / SPACE</b> Sword &nbsp; <b>RMB</b> Fireball</div>
       <div><b>1</b> Frost nova &nbsp; <b>Q</b> Potion &nbsp; <b>B</b> Shop &nbsp; <b>M</b> Mute</div>
       <div style="margin-top:10px; color:var(--faint)">On touch screens: left side drags to move, buttons to fight.</div>
     </div>
@@ -779,7 +779,7 @@ function update(dt) {
   player.y = clamp(player.y + my * player.speed * dt, 40, ARENA - 40);
 
   /* attack */
-  if ((mouse.down || touchAttack) && player.swingT <= 0) doSwing();
+  if ((mouse.down || touchAttack || keys[" "]) && player.swingT <= 0) doSwing();
 
   /* enemies */
   for (var i = 0; i < enemies.length; i++) {
