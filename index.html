@@ -766,6 +766,7 @@ function chooseCard(u) {
   player.xp -= player.xpNext;
   player.level++;
   player.maxhp += 8;
+  player.swordDmg *= 1.07;
   player.hp = Math.min(player.maxhp, player.hp + 20);
   player.xpNext = Math.round(player.xpNext * 1.35 + 15);
   document.getElementById("ov-level").classList.remove("open");
