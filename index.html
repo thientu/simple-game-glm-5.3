@@ -794,6 +794,7 @@ window.addEventListener("keydown", function (e) {
       e.preventDefault();
       moveShopSel((k === "arrowup" || (k === "tab" && e.shiftKey)) ? -1 : 1);
     } else if (k === "enter") { e.preventDefault(); buyShopSel(); }
+    else if (k === " ") { e.preventDefault(); }  /* block native button re-click */
     else if (k === "b" || k === "escape") closeShop();
     return;
   }
@@ -1363,7 +1364,8 @@ function renderShop() {
       '<div class="si-desc">' + s.d + "</div>" +
       '<div class="si-val">' + s.val() + "</div></div>" +
       '<button class="shop-buy num"' + (disabled ? " disabled" : "") + ">" + price + " g</button>";
-    row.querySelector("button").addEventListener("click", function () { attemptBuy(idx); });
+    var buyBtn = row.querySelector("button");
+    buyBtn.addEventListener("click", function () { attemptBuy(idx); buyBtn.blur(); });
     row.addEventListener("mouseenter", function () { shopSel = idx; paintShopSel(); });
     list.appendChild(row);
   });
@@ -1377,6 +1379,7 @@ function moveShopSel(d) {
   shopSel = (shopSel + d + SHOP.length) % SHOP.length;
   paintShopSel();
 }
+function buyShopSel() { attemptBuy(shopSel); }
 function attemptBuy(idx) {
   var s = SHOP[idx];
   if (!s.can() || player.gold < s.price()) { sfx("hit"); return; }
