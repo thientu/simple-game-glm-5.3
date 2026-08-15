@@ -69,23 +69,46 @@ canvas { display: block; position: fixed; inset: 0; }
 .card-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
 @media (max-width: 640px) { .card-row { grid-template-columns: 1fr; } }
 .up-card {
-  text-align: center; padding: 24px 16px 20px;
+  position: relative; text-align: center; padding: 22px 16px 16px;
   background: linear-gradient(180deg, rgba(40,33,26,.8), rgba(24,20,16,.9));
   border: 1px solid var(--border); clip-path: var(--notch);
-  transition: border-color .15s, transform .15s;
+  transition: border-color .15s, transform .15s, box-shadow .15s;
 }
-.up-card:hover { border-color: var(--accent-hi); transform: translateY(-3px); }
+.up-card:hover, .up-card.sel { border-color: var(--accent-hi); transform: translateY(-3px); }
+.up-card.sel { border-color: var(--gold); box-shadow: 0 0 0 1px rgba(212,169,79,.55), 0 14px 34px rgba(5,4,3,.75); }
+.up-card.sel h4 { color: #f0d9c8; }
 .up-card svg { width: 34px; height: 34px; stroke: var(--muted); fill: none; stroke-width: 1.6; margin-bottom: 12px; }
-.up-card:hover svg { stroke: var(--accent-hi); }
+.up-card:hover svg, .up-card.sel svg { stroke: var(--accent-hi); }
 .up-card h4 { font-family: var(--font-display); text-transform: uppercase; letter-spacing: .16em; font-size: 13.5px; }
 .up-card p { margin-top: 10px; font-size: 12.5px; color: var(--muted); line-height: 1.55; }
+.up-card .lv-chip {
+  position: absolute; top: 10px; right: 10px;
+  font-family: var(--font-display); font-size: 10px; letter-spacing: .14em;
+  color: var(--gold); border: 1px solid var(--border); padding: 2px 7px;
+}
+.up-card .lv-chip.new { color: var(--ess); }
+.up-card .sk-meta {
+  margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(81,68,58,.6);
+  font-size: 11px; color: var(--faint); letter-spacing: .04em; line-height: 1.85;
+}
+.up-card .sk-meta b { color: var(--muted); font-weight: 600; }
+.up-card .sk-meta .up { color: #8fb35a; }
+.kbd-hint { text-align: center; margin-top: 16px; color: var(--faint); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; }
+.kbd-hint b { color: var(--muted); border: 1px solid var(--border); padding: 1px 6px; margin: 0 2px; font-family: var(--font-display); font-size: 10.5px; }
 
 .shop-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
 .shop-gold { font-family: var(--font-display); letter-spacing: .08em; color: var(--gold); }
-.shop-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px 4px; border-bottom: 1px solid rgba(81,68,58,.6); }
+.shop-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px 4px; border-bottom: 1px solid rgba(81,68,58,.6); transition: background .15s; }
 .shop-row:last-of-type { border-bottom: none; }
+.shop-row.sel { background: linear-gradient(90deg, rgba(212,169,79,.06), transparent); }
 .shop-row .si-name { font-family: var(--font-display); text-transform: uppercase; letter-spacing: .12em; font-size: 13px; }
+.shop-row .si-name .bought { font-size: 10px; color: var(--gold); border: 1px solid var(--border); padding: 1px 6px; margin-left: 8px; letter-spacing: .12em; vertical-align: 2px; }
 .shop-row .si-desc { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.shop-row .si-val { font-size: 12px; margin-top: 4px; color: var(--muted); }
+.shop-row .si-val .from { color: var(--muted); }
+.shop-row .si-val .to { color: #8fb35a; font-weight: 600; }
+.shop-row .si-val .sep { color: var(--faint); padding: 0 5px; }
+.shop-row.sel .shop-buy:not(:disabled) { border-color: var(--gold); color: var(--gold); }
 .shop-buy { min-width: 108px; padding: 9px 16px; font-size: 12px; letter-spacing: .12em; text-align: center;
   font-family: var(--font-display); text-transform: uppercase;
   border: 1px solid var(--border-hi); clip-path: var(--notch);
@@ -93,6 +116,56 @@ canvas { display: block; position: fixed; inset: 0; }
 .shop-buy:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
 .shop-buy:disabled { opacity: .35; cursor: default; }
 .shop-foot { text-align: center; margin-top: 20px; }
+
+/* ---------- hero stats sheet (from Open Design hero-stats.html) ---------- */
+#ov-stats .panel-frame { width: min(1040px, 96vw); padding: 0; }
+.sheet-head {
+  display: grid; grid-template-columns: auto 1fr auto; gap: 22px; align-items: center;
+  padding: 24px 46px 18px; border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(46,38,30,.5), transparent);
+}
+.hero-sigil { width: 64px; height: 64px; flex: none; filter: drop-shadow(0 0 14px rgba(168,58,40,.4)); }
+.hero-name h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(20px, 2.6vw, 27px); letter-spacing: .14em; text-transform: uppercase; color: #e8dcc0; text-shadow: 0 0 22px rgba(168,58,40,.35); }
+.hero-name .hero-title { margin-top: 5px; font-size: 12px; letter-spacing: .24em; text-transform: uppercase; color: var(--gold); }
+.hero-name .hero-sub { margin-top: 7px; font-size: 12px; color: var(--faint); letter-spacing: .08em; }
+.hero-name .hero-sub b { color: var(--muted); font-weight: 600; }
+.head-power { text-align: right; flex: none; }
+.head-power .pw-label { font-family: var(--font-display); text-transform: uppercase; letter-spacing: .22em; font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+.head-power .pw-value { font-family: var(--font-display); font-size: clamp(24px, 2.6vw, 32px); color: #e8dcc0; letter-spacing: .04em; text-shadow: 0 0 18px rgba(168,58,40,.35); }
+.head-power .pw-delta { font-size: 11.5px; color: #8fb35a; margin-top: 4px; letter-spacing: .06em; }
+.sheet-body { padding: 20px 46px 24px; display: grid; gap: 14px; }
+.stat-block { border: 1px solid rgba(81,68,58,.6); background: rgba(21,17,13,.5); padding: 16px 18px; }
+.stat-block h5 {
+  font-family: var(--font-display); text-transform: uppercase; letter-spacing: .22em;
+  font-size: 12px; color: var(--gold); margin-bottom: 12px;
+  display: flex; justify-content: space-between; align-items: baseline;
+}
+.stat-block h5 .bonus { font-size: 10.5px; color: var(--faint); letter-spacing: .1em; }
+.stat-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 6.5px 0; border-bottom: 1px solid rgba(48,40,33,.8); font-size: 13.5px; }
+.stat-row:last-child { border-bottom: none; }
+.stat-row .label { color: var(--muted); }
+.stat-row .value { color: var(--fg); }
+.stat-row .value.up { color: #8fb35a; }
+.sheet-grid-3 { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 14px; }
+.sheet-grid-2 { display: grid; grid-template-columns: 1fr 1.55fr; gap: 14px; }
+@media (max-width: 880px) { .sheet-grid-3, .sheet-grid-2 { grid-template-columns: 1fr; } .sheet-head { grid-template-columns: auto 1fr; } .head-power { display: none; } }
+.dmg-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.dmg-table th {
+  font-family: var(--font-display); text-transform: uppercase; letter-spacing: .16em;
+  font-size: 10.5px; color: var(--faint); text-align: right; padding: 0 0 8px;
+  border-bottom: 1px solid var(--border); font-weight: 600;
+}
+.dmg-table th:first-child, .dmg-table td:first-child { text-align: left; }
+.dmg-table td { padding: 7px 0; text-align: right; color: var(--fg); border-bottom: 1px solid rgba(48,40,33,.8); }
+.dmg-table tr:last-child td { border-bottom: none; }
+.dmg-table td.sk { color: var(--muted); }
+.dmg-table td.sk b { color: var(--fg); font-weight: 600; letter-spacing: .04em; }
+.dmg-table td .tag { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; padding: 1px 6px; border: 1px solid var(--border); color: var(--faint); }
+.dmg-table td .tag.fire { color: var(--ember); border-color: rgba(224,122,58,.5); }
+.dmg-table td .tag.frost { color: var(--frost); border-color: rgba(159,199,221,.4); }
+.dmg-table td .tag.blood { color: #c6523c; border-color: rgba(198,82,60,.5); }
+.sheet-foot { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding: 14px 46px 18px; font-size: 12px; color: var(--faint); letter-spacing: .08em; }
+.sheet-foot .hint b { color: var(--muted); font-family: var(--font-display); letter-spacing: .1em; }
 
 #ov-death .panel-frame { text-align: center; }
 .death-stats { margin: 20px 0 24px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
@@ -160,6 +233,24 @@ canvas { display: block; position: fixed; inset: 0; }
 .skill-slot .cdmask { position: absolute; left: 0; right: 0; bottom: 0; height: 0%; background: rgba(8,6,5,.78); pointer-events: none; }
 #xpbar { position: fixed; left: 0; right: 0; bottom: 0; height: 7px; background: #0b0908; border-top: 1px solid #292219; z-index: 21; }
 #xpFill { height: 100%; width: 0%; background: linear-gradient(90deg, #8a6a2c, #d4a94f); box-shadow: 0 0 8px rgba(212,169,79,.55); }
+#dbg { position: fixed; left: 12px; bottom: 14px; z-index: 22; font-size: 11px; color: var(--faint);
+  font-variant-numeric: tabular-nums; text-shadow: 0 1px 2px #050403; pointer-events: none; white-space: pre; }
+#miniStats {
+  position: fixed; left: 14px; top: 16px; z-index: 21; pointer-events: none;
+  min-width: 148px; padding: 10px 14px 9px;
+  background: rgba(24,20,16,.72); border: 1px solid var(--border);
+  clip-path: var(--notch); font-size: 12px; line-height: 1.85; color: var(--muted);
+  text-shadow: 0 1px 2px #050403;
+}
+#miniStats .pw {
+  display: flex; justify-content: space-between; gap: 16px;
+  font-family: var(--font-display); letter-spacing: .14em; font-size: 10.5px;
+  text-transform: uppercase; color: var(--gold);
+  border-bottom: 1px solid rgba(81,68,58,.6); padding-bottom: 4px; margin-bottom: 4px;
+}
+#miniStats .pw b { font-size: 12.5px; letter-spacing: .04em; }
+#miniStats .r { display: flex; justify-content: space-between; gap: 16px; }
+#miniStats .r b { color: var(--fg); font-weight: 600; }
 
 /* ---------- touch UI ---------- */
 #touchUI { display: none; }
@@ -183,6 +274,7 @@ body.touch #touchUI { display: block; }
     <h4 id="uiWaveTitle">Wave 1</h4>
     <div class="tr num">Foes remaining <span id="uiFoes">0</span></div>
     <div class="tr num">Level <span id="uiLevel">1</span></div>
+    <div class="tr num">Power <span id="uiPower">0</span></div>
     <div class="tr num" style="color:var(--gold)">Gold <span id="uiGold">0</span></div>
   </div>
   <div id="interBar" class="hidden">
@@ -193,30 +285,32 @@ body.touch #touchUI { display: block; }
   <div id="hudBottom">
     <div class="orb hp"><div class="fill" id="hpFill" style="height:100%"></div><div class="glass"></div><div class="orb-num num" id="hpNum">100 / 100</div></div>
     <div class="skillbar">
-      <div class="skill-slot" title="Sword">
+      <div class="skill-slot" id="slotSword" title="Sword">
         <svg viewBox="0 0 24 24"><path d="M6 20 L18 6 M18 6 l-4.5 1 M18 6 l-1 4.5 M8.5 17.5 l-2 -2 M6.5 19.5 l-1.5 -1.5"/></svg>
-        <span class="key">LMB / J</span><div class="cdmask" id="cdSwing"></div>
+        <span class="key">1</span><div class="cdmask" id="cdSwing"></div>
       </div>
-      <div class="skill-slot" title="Fireball">
+      <div class="skill-slot" id="slotFire" title="Fireball">
         <svg viewBox="0 0 24 24"><path d="M12 3 q6 7 0 18 q-6 -11 0 -18 Z M12 8 q3 4 0 9"/></svg>
-        <span class="key">RMB / K</span><div class="cdmask" id="cdFire"></div>
+        <span class="key">2</span><div class="cdmask" id="cdFire"></div>
       </div>
-      <div class="skill-slot" title="Frost Nova">
+      <div class="skill-slot" id="slotNova" title="Frost Nova">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2 v4 M12 18 v4 M2 12 h4 M18 12 h4 M5 5 l3 3 M16 16 l3 3 M19 5 l-3 3 M8 16 l-3 3"/></svg>
-        <span class="key">1</span><div class="cdmask" id="cdNova"></div>
+        <span class="key">3</span><div class="cdmask" id="cdNova"></div>
       </div>
-      <div class="skill-slot" title="Leap">
+      <div class="skill-slot" id="slotLeap" title="Leap">
         <svg viewBox="0 0 24 24"><path d="M12 20 V8 M12 8 l-5 5 M12 8 l5 5 M6 20 h12"/></svg>
         <span class="key">SPC</span><div class="cdmask" id="cdLeap"></div>
       </div>
-      <div class="skill-slot potion" title="Healing Potion">
+      <div class="skill-slot potion" id="slotPotion" title="Healing Potion">
         <svg viewBox="0 0 24 24"><path d="M10 3 h4 M11 3 v4 M8 10 a4 5 0 1 0 8 0 Z" stroke-linejoin="round"/></svg>
-        <span class="key">Q</span><span class="count num" id="uiPotions">3</span>
+        <span class="key">4</span><span class="count num" id="uiPotions">3</span>
       </div>
     </div>
     <div class="orb ess"><div class="fill" id="essFill" style="height:100%"></div><div class="glass"></div><div class="orb-num num" id="essNum">60 / 60</div></div>
   </div>
   <div id="xpbar"><div id="xpFill"></div></div>
+  <div id="dbg" class="hidden"></div>
+  <div id="miniStats"></div>
 </div>
 
 <div id="touchUI">
@@ -241,9 +335,9 @@ body.touch #touchUI { display: block; }
     <div class="ov-title">Ashes of Sanctuary</div>
     <div class="ov-sub">Five Realms · 2.5D</div>
     <div class="controls-hint">
-      <div><b>WASD</b> Move &nbsp; <b>LMB / J</b> Sword &nbsp; <b>RMB / K</b> Fireball</div>
-      <div><b>SPACE</b> Leap &nbsp; <b>1</b> Frost nova &nbsp; <b>Q</b> Potion</div>
-      <div><b>B</b> Shop &nbsp; <b>M</b> Mute</div>
+      <div><b>WASD</b> Move &nbsp; <b>LMB / 1</b> Sword &nbsp; <b>RMB / 2</b> Fireball</div>
+      <div><b>3</b> Frost nova &nbsp; <b>SPACE</b> Leap &nbsp; <b>4</b> Potion</div>
+      <div><b>C</b> Hero sheet &nbsp; <b>B</b> Shop &nbsp; <b>TAB</b> Pick cards &nbsp; <b>M</b> Mute</div>
       <div style="margin-top:10px; color:var(--faint)">Five waves clear a realm, then the way opens. Shatter chests, drink from shrines, and mind the lava.</div>
     </div>
     <button class="btn-d4 primary" id="btnStart">Enter the Realms</button>
@@ -269,6 +363,34 @@ body.touch #touchUI { display: block; }
     </div>
     <div id="shopList"></div>
     <div class="shop-foot"><button class="btn-d4" id="btnShopClose">Back to the Court</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="ov-stats">
+  <div class="panel-frame">
+    <header class="sheet-head">
+      <svg class="hero-sigil" viewBox="0 0 100 100" aria-hidden="true">
+        <circle cx="50" cy="50" r="44" fill="none" stroke="#a83a28" stroke-width="2"/>
+        <circle cx="50" cy="50" r="36" fill="none" stroke="#6d4030" stroke-width="1"/>
+        <path d="M50 18 L74 82 H26 Z" fill="none" stroke="#c6523c" stroke-width="2.4"/>
+        <circle cx="50" cy="60" r="9" fill="#8f3020"/>
+      </svg>
+      <div class="hero-name">
+        <h1>Vess of the Ossuary</h1>
+        <div class="hero-title" id="stTitle">Wanderer of the Five Realms</div>
+        <div class="hero-sub num" id="stSub"><b>Wanderer</b> · Level 1 · Ossuary Court · Wave 1</div>
+      </div>
+      <div class="head-power">
+        <div class="pw-label">Power</div>
+        <div class="pw-value num" id="stPower">0</div>
+        <div class="pw-delta num" id="stPowerDelta"></div>
+      </div>
+    </header>
+    <div class="sheet-body" id="sheetBody"></div>
+    <footer class="sheet-foot">
+      <span class="hint"><b>C</b> Close &nbsp;·&nbsp; <b>B</b> Shop &nbsp;·&nbsp; <b>M</b> Mute</span>
+      <span class="num" id="stUptime">Uptime 0:00 · 0 kills</span>
+    </footer>
   </div>
 </div>
 
@@ -376,16 +498,16 @@ var bestWave = +(localStorage.getItem("aos-realms-best") || 0);
 var player = {};
 function resetPlayer() {
   var fresh = {
-    x: ARENA / 2, y: ARENA / 2 + 260, r: 15, z: 0, vz: 0, air: false,
+    x: ARENA / 2, y: ARENA / 2, r: 15, z: 0, vz: 0, air: false,
     hp: 100, maxhp: 100, ess: 60, maxess: 60, essRegen: 5,
     speed: 265, level: 1, xp: 0, xpNext: 35, gold: 0,
     potions: 3, potionPower: 0.45,
     swordDmg: 12, swordArc: 2.1, swordRange: 74, swingCd: 0.38, swingT: 0, knockPow: 1,
-    aim: 0, fireDmg: 20, fireCost: 18, firePierce: 0,
+    aim: -Math.PI / 2, fireDmg: 20, fireCost: 18, firePierce: 0,
     novaDmg: 26, novaCost: 32, novaR: 150, novaCd: 6, novaT: 0,
     leapCd: 2.2, leapT: 0, quake: 0,
     armor: 0, pickupR: 95, killHeal: 0, critC: 0.15, critM: 1.8,
-    hurtT: 0, invulnT: 0
+    hurtT: 0, invulnT: 0, powerLast: 0
   };
   for (var k in fresh) player[k] = fresh[k];
 }
@@ -539,7 +661,7 @@ var MAPS = [
       pools.push({ x: c + 560, y: c - 260, r: 160, water: true });
       for (var s = 0; s < 5; s++) {
         var a = s * TAU / 5 + 0.3;
-        props.push({ kind: "stone", x: c + Math.cos(a) * 380, y: c + Math.sin(a) * 380, r: 18, solid: true, seed: rand(0, 9) });
+        props.push({ kind: "stone", x: c + Math.cos(a) * 380, y: c + Math.sin(a) * 380, r: 18, hp: 2, solid: true, breakable: true, seed: rand(0, 9), damaged: false });
       }
       for (var m = 0; m < 7; m++) {
         var a2 = rand(0, TAU), d2 = rand(380, 1050);
@@ -578,6 +700,7 @@ var BREAK = {
   iceblock:  { hp: 1, coins: [4, 9],  debris: "#9fc7dd" },
   magmarock: { hp: 1, coins: [4, 9],  debris: "#e07a3a" },
   shroom:    { hp: 1, coins: [2, 5],  debris: "#6fae8f" },
+  stone:     { hp: 2, coins: [4, 9],  debris: "#8f9a8a" },
   chest:     { hp: 2, coins: [12, 22], debris: "#d4a94f" }
 };
 function spawnBreakables(kind, n) {
@@ -598,8 +721,14 @@ function spawnShrine(x, y) { shrine = { x: clamp(x, 140, ARENA - 140), y: clamp(
 function buildMap(keepPlayer) {
   props = []; pools = []; vents = []; shrine = null;
   elev = new Float32Array(GRID_N * GRID_N);
-  if (!keepPlayer) { player.x = ARENA / 2; player.y = ARENA - 300; player.z = 0; player.air = false; }
   curMap().gen();
+  if (!keepPlayer) {
+    /* arrive in the middle of the realm; the tiny offset keeps the solid-prop
+       push-out working when the map has a prop dead-center (altar, reliquary) */
+    player.x = ARENA / 2 + 0.5; player.y = ARENA / 2 + 0.5;
+    player.z = 0; player.air = false;
+    collideSolids(player);
+  }
   camSX = projX(player.x, player.y);
   camSY = projY(player.x, player.y, 0);
 }
@@ -653,15 +782,38 @@ window.addEventListener("keydown", function (e) {
   keys[k] = true;
   if (["arrowup", "arrowdown", "arrowleft", "arrowright", " "].indexOf(k) >= 0) e.preventDefault();
   if (state === "menu" || state === "dead") { if (k === "enter") startRun(); return; }
+  if (state === "levelup") {
+    if (k === "tab" || k === "arrowright" || k === "arrowleft") {
+      e.preventDefault();
+      moveCardSel((k === "arrowleft" || (k === "tab" && e.shiftKey)) ? -1 : 1);
+    } else if (k === "enter" || k === " ") { e.preventDefault(); confirmCardSel(); }
+    return;
+  }
+  if (state === "shop") {
+    if (k === "tab" || k === "arrowdown" || k === "arrowup") {
+      e.preventDefault();
+      moveShopSel((k === "arrowup" || (k === "tab" && e.shiftKey)) ? -1 : 1);
+    } else if (k === "enter") { e.preventDefault(); buyShopSel(); }
+    else if (k === "b" || k === "escape") closeShop();
+    return;
+  }
+  if (state === "stats") {
+    if (k === "c" || k === "escape" || k === "enter") closeStats();
+    return;
+  }
   if ((k === "escape" || k === "p") && (state === "play" || state === "intermission")) { pauseGame(); return; }
   if ((k === "escape" || k === "p") && state === "pause") { resumeGame(); return; }
-  if (k === "j" || k === "k") pointerIsMouse = false;
-  if (k === "1") castNova();
-  else if (k === "k") castFire();
-  else if (k === "q") usePotion();
+  if (k === "1" || k === "2") pointerIsMouse = false;
+  if (k === "2") castFire();
+  else if (k === "3") castNova();
   else if (k === " ") doLeap();
+  else if (k === "4") usePotion();
   else if (k === "m") muted = !muted;
-  else if (k === "b") {
+  else if (k === "`") document.getElementById("dbg").classList.toggle("hidden");
+  else if (k === "c") {
+    if (state === "play" || state === "intermission") openStats();
+    else if (state === "stats") closeStats();
+  } else if (k === "b") {
     if (state === "intermission") openShop();
     else if (state === "shop") closeShop();
   } else if (k === "escape" && state === "shop") closeShop();
@@ -785,17 +937,26 @@ function doSwing() {
   }
   for (var u = 0; u < props.length; u++) {
     var un = props[u];
-    if (!un.breakable || un.dead) continue;
+    if (un.dead || (!un.breakable && !un.solid)) continue;
     var du = Math.hypot(un.x - player.x, un.y - player.y);
     if (du < player.swordRange + un.r) {
       var duA = Math.atan2(un.y - player.y, un.x - player.x) - player.aim;
       while (duA > Math.PI) duA -= TAU;
       while (duA < -Math.PI) duA += TAU;
-      if (Math.abs(duA) < player.swordArc / 2) { hitProp(un); hitAny = true; }
+      if (Math.abs(duA) < player.swordArc / 2) {
+        if (un.breakable) hitProp(un);
+        else clangProp(un);
+        hitAny = true;
+      }
     }
   }
   sfx("swing");
   if (hitAny) shake = Math.min(shake + 0.15, 0.55);
+}
+function clangProp(p) {
+  burstP(p.x, p.y, groundZ(p.x, p.y) + 26, "#e8dcc0", 5, 150, 300);
+  addFloat(p.x, p.y, 46, "Clang!", "#b9b19c", 12);
+  sfx("hit");
 }
 function damageEnemy(e, roll, dir) {
   e.hp -= roll.v; e.hitT = 0.12;
@@ -917,66 +1078,176 @@ function gainXP(v) {
   player.xp += v;
   if (player.xp >= player.xpNext && (state === "play" || state === "intermission")) openLevelUp();
 }
+function powerScore() {
+  return Math.round(
+    player.swordDmg * 2.2 + player.fireDmg * 1.8 + player.novaDmg * 1.4 +
+    player.maxhp * 0.12 + player.armor * 3 + player.critC * 160 +
+    (player.critM - 1.8) * 55 + (player.speed - 265) * 0.2 +
+    player.quake * 0.9 + player.killHeal * 4 + (player.essRegen - 5) * 3 +
+    (player.maxess - 60) * 0.4
+  );
+}
+var cardSel = 0, curCards = [];
+function swordMeta(dmgNext, extra) {
+  return "<b>Sword</b> · " + player.swingCd.toFixed(2) + "s cd · no essence" +
+    (dmgNext ? "<br>Damage <b>" + Math.round(player.swordDmg) + '</b> → <span class="up">' + Math.round(dmgNext) + "</span>" : "") +
+    (extra ? "<br>" + extra : "");
+}
+function fireMeta(dmgNext, extra) {
+  return "<b>Fireball</b> · no cd · " + player.fireCost + " essence" +
+    (dmgNext ? "<br>Damage <b>" + Math.round(player.fireDmg) + '</b> → <span class="up">' + Math.round(dmgNext) + "</span>" : "") +
+    (extra ? "<br>" + extra : "");
+}
+function novaMeta(dmgNext, extra) {
+  return "<b>Frost Nova</b> · " + player.novaCd.toFixed(1) + "s cd · " + player.novaCost + " essence" +
+    (dmgNext ? "<br>Damage <b>" + Math.round(player.novaDmg) + '</b> → <span class="up">' + Math.round(dmgNext) + "</span>" : "") +
+    (extra ? "<br>" + extra : "");
+}
+var UPGRADES = [
+  { n: "Honed Edge", sk: "sword", d: function () { return "+25% sword damage."; },
+    icon: '<path d="M6 20 L18 6 M18 6 l-4.5 1 M18 6 l-1 4.5"/>',
+    meta: function () { return swordMeta(player.swordDmg * 1.25); },
+    a: function () { player.swordDmg *= 1.25; } },
+  { n: "Cleaving Arc", sk: "sword", d: function () { return "Sword swings reach wider and further."; },
+    icon: '<path d="M4 16 A10 10 0 0 1 16 4 M4 16 l-2 -2 M4 16 l0 3"/>',
+    meta: function () {
+      var arcNow = Math.round(player.swordArc / TAU * 360), arcNext = Math.round(Math.min(3.3, player.swordArc + 0.45) / TAU * 360);
+      return swordMeta(null, "Arc <b>" + arcNow + "°</b> → <span class=\"up\">" + arcNext + "°</span> · Reach <b>" + player.swordRange + "</b> → <span class=\"up\">" + (player.swordRange + 12) + "</span>");
+    },
+    a: function () { player.swordArc = Math.min(3.3, player.swordArc + 0.45); player.swordRange += 12; } },
+  { n: "Whirlwind", sk: "sword", d: function () { return "Sweep a full circle — every foe around you is struck."; },
+    icon: '<path d="M20 12 a8 8 0 1 1 -2.9 -6.2 M17 3.4 l0.3 3 M17 3.4 l-2.9 0.9"/>',
+    meta: function () { return swordMeta(null, "Arc <b>" + Math.round(player.swordArc / TAU * 360) + "°</b> → <span class=\"up\">360°</span>"); },
+    a: function () { player.swordArc = TAU; },
+    maxed: function () { return player.swordArc >= TAU - 0.01; } },
+  { n: "Sledgeblade", sk: "sword", d: function () { return "+80% knockback. Smash foes into pillars."; },
+    icon: '<path d="M12 3 v10 M8 13 h8 l-4 8 Z"/>',
+    meta: function () { return swordMeta(null, "Knockback <b>×" + player.knockPow.toFixed(1) + "</b> → <span class=\"up\">×" + (player.knockPow * 1.8).toFixed(1) + "</span>"); },
+    a: function () { player.knockPow *= 1.8; } },
+  { n: "Earthshaker", sk: "leap", d: function () { return "Leaps detonate for 22 damage on landing."; },
+    icon: '<path d="M12 4 v8 M12 12 l-4 4 M12 12 l4 4 M4 20 h16"/>',
+    meta: function () {
+      return "<b>Leap</b> · " + player.leapCd.toFixed(1) + "s cd · no essence<br>Quake <b>" + Math.round(player.quake) + "</b> → <span class=\"up\">" + Math.round(player.quake + 22) + "</span> dmg";
+    },
+    a: function () { player.quake += 22; } },
+  { n: "Bloodletter", sk: null, d: function () { return "Recover 3 life whenever a foe dies."; },
+    icon: '<path d="M12 3 q7 8 0 18 q-7 -10 0 -18 Z"/>',
+    meta: function () { return "Life per kill <b>" + player.killHeal + "</b> → <span class=\"up\">" + (player.killHeal + 3) + "</span>"; },
+    a: function () { player.killHeal += 3; } },
+  { n: "Bulwark", sk: null, d: function () { return "+30 maximum life, heal 30 now."; },
+    icon: '<path d="M12 3 L20 6 V12 Q20 18 12 21 Q4 18 4 12 V6 Z"/>',
+    meta: function () { return "Max life <b>" + player.maxhp + "</b> → <span class=\"up\">" + (player.maxhp + 30) + "</span>"; },
+    a: function () { player.maxhp += 30; player.hp = Math.min(player.maxhp, player.hp + 30); } },
+  { n: "Swift Boots", sk: null, d: function () { return "+12% movement speed."; },
+    icon: '<path d="M9 4 v9 q-4 2 -4 7 h14 v-2 q0 -2 -3 -3 l-3 -2 V4 Z"/>',
+    meta: function () { return "Speed <b>" + Math.round(player.speed) + "</b> → <span class=\"up\">" + Math.round(player.speed * 1.12) + "</span>"; },
+    a: function () { player.speed *= 1.12; } },
+  { n: "Ember Charged", sk: "fire", d: function () { return "+30% fireball damage and one extra pierce."; },
+    icon: '<path d="M12 3 q6 7 0 18 q-6 -11 0 -18 Z M12 9 q3 3 0 7"/>',
+    meta: function () { return fireMeta(player.fireDmg * 1.3, "Pierce <b>" + player.firePierce + "</b> → <span class=\"up\">" + (player.firePierce + 1) + "</span>"); },
+    a: function () { player.fireDmg *= 1.3; player.firePierce++; } },
+  { n: "Rime Bloom", sk: "nova", d: function () { return "+30% frost nova radius and damage."; },
+    icon: '<circle cx="12" cy="12" r="4"/><path d="M12 2 v4 M12 18 v4 M2 12 h4 M18 12 h4"/>',
+    meta: function () { return novaMeta(player.novaDmg * 1.3, "Radius <b>" + Math.round(player.novaR) + "</b> → <span class=\"up\">" + Math.round(player.novaR * 1.3) + "</span> · Slows 55%"); },
+    a: function () { player.novaR *= 1.3; player.novaDmg *= 1.3; } },
+  { n: "Soul Well", sk: null, d: function () { return "+45% essence regeneration."; },
+    icon: '<circle cx="12" cy="12" r="7"/><path d="M12 5 v14" opacity=".6"/>',
+    meta: function () { return "Essence regen <b>" + player.essRegen.toFixed(1) + "/s</b> → <span class=\"up\">" + (player.essRegen * 1.45).toFixed(1) + "/s</span>"; },
+    a: function () { player.essRegen *= 1.45; } },
+  { n: "Alchemist", sk: null, d: function () { return "+2 potions; potions heal 15% more."; },
+    icon: '<path d="M10 3 h4 M11 3 v4 M8 10 a4 5 0 1 0 8 0 Z"/>',
+    meta: function () {
+      var pots = Math.min(5, player.potions + 2);
+      return "Potions <b>" + player.potions + "/5</b> → <span class=\"up\">" + pots + "/5</span> · Heal <b>" + Math.round(player.potionPower * 100) + "%</b> → <span class=\"up\">" + Math.round((player.potionPower + 0.15) * 100) + "%</span>";
+    },
+    a: function () { player.potions = Math.min(5, player.potions + 2); player.potionPower += 0.15; },
+    maxed: function () { return player.potions >= 5 && player.potionPower >= 1.2; } },
+  { n: "Wicked Edge", sk: null, d: function () { return "+10% chance to strike critically."; },
+    icon: '<path d="M12 3 v8 M12 11 l-4 4 M12 11 l4 4 M4 20 h16 M12 3 l-2 3 M12 3 l2 3"/>',
+    meta: function () { return "Crit chance <b>" + Math.round(player.critC * 100) + "%</b> → <span class=\"up\">" + Math.round(Math.min(0.6, player.critC + 0.1) * 100) + "%</span> (cap 60%)"; },
+    a: function () { player.critC = Math.min(0.6, player.critC + 0.1); },
+    maxed: function () { return player.critC >= 0.6; } },
+  { n: "Cruelty", sk: null, d: function () { return "Critical strikes deal 50% more damage."; },
+    icon: '<path d="M6 20 L18 6 M18 6 l-4.5 1 M18 6 l-1 4.5 M7 13 l4 4"/>',
+    meta: function () { return "Crit damage <b>×" + player.critM.toFixed(1) + "</b> → <span class=\"up\">×" + (player.critM + 0.5).toFixed(1) + "</span>"; },
+    a: function () { player.critM += 0.5; } }
+];
+function skillRank(sk) {
+  var r = 0;
+  for (var i = 0; i < UPGRADES.length; i++) if (UPGRADES[i].sk === sk) r += UPGRADES[i].taken || 0;
+  return r;
+}
 function openLevelUp() {
   resumeState = state;
   state = "levelup";
   document.getElementById("lvTitle").textContent = "Level " + (player.level + 1);
-  var pool = UPGRADES.slice();
+  var pool = UPGRADES.filter(function (u) { return !u.maxed || !u.maxed(); });
   for (var i = pool.length - 1; i > 0; i--) { var j = irand(0, i); var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp; }
+  curCards = pool.slice(0, 3);
   var row = document.getElementById("cardRow");
   row.innerHTML = "";
-  for (var k = 0; k < 3; k++) {
-    (function (u) {
+  for (var k = 0; k < curCards.length; k++) {
+    (function (u, idx) {
       var card = document.createElement("button");
       card.className = "up-card";
-      card.innerHTML = '<svg viewBox="0 0 24 24">' + u.icon + "</svg><h4>" + u.n + "</h4><p>" + u.d + "</p>";
+      card.innerHTML =
+        '<span class="lv-chip' + (u.taken ? '' : ' new') + '">' + (u.taken ? "Lv " + u.taken : "NEW") + "</span>" +
+        '<svg viewBox="0 0 24 24">' + u.icon + "</svg><h4>" + u.n + "</h4><p>" + u.d() + "</p>" +
+        '<div class="sk-meta">' + u.meta() + "</div>";
       card.addEventListener("click", function () { chooseCard(u); });
+      card.addEventListener("mouseenter", function () { cardSel = idx; paintCardSel(); });
       row.appendChild(card);
-    })(pool[k]);
+    })(curCards[k], k);
   }
+  var hint = document.createElement("div");
+  hint.className = "kbd-hint";
+  hint.innerHTML = "<b>TAB</b> choose &nbsp; <b>ENTER</b> take";
+  row.appendChild(hint);
+  cardSel = 0;
+  paintCardSel();
   document.getElementById("ov-level").classList.add("open");
 }
+function paintCardSel() {
+  var cards = document.querySelectorAll("#cardRow .up-card");
+  for (var i = 0; i < cards.length; i++) cards[i].classList.toggle("sel", i === cardSel);
+}
+function moveCardSel(d) {
+  var n = document.querySelectorAll("#cardRow .up-card").length;
+  if (!n) return;
+  cardSel = (cardSel + d + n) % n;
+  paintCardSel();
+}
+function confirmCardSel() { if (curCards[cardSel]) chooseCard(curCards[cardSel]); }
 function chooseCard(u) {
   u.a();
+  u.taken = (u.taken || 0) + 1;
   player.xp -= player.xpNext;
   player.level++;
   player.maxhp += 8;
   player.swordDmg *= 1.07;
+  player.fireDmg *= 1.07;
+  player.novaDmg *= 1.07;
   player.hp = Math.min(player.maxhp, player.hp + 20);
   player.xpNext = Math.round(player.xpNext * 1.35 + 15);
+  player.powerLast = powerScore();
   document.getElementById("ov-level").classList.remove("open");
   addFloat(player.x, player.y, player.z + 44, "LEVEL " + player.level, C.gold, 20);
   sfx("level");
   if (player.xp >= player.xpNext) { openLevelUp(); return; }
   state = resumeState;
 }
-var UPGRADES = [
-  { n: "Honed Edge", d: "+25% sword damage.", icon: '<path d="M6 20 L18 6 M18 6 l-4.5 1 M18 6 l-1 4.5"/>', a: function () { player.swordDmg *= 1.25; } },
-  { n: "Cleaving Arc", d: "Sword swings reach wider and further.", icon: '<path d="M4 16 A10 10 0 0 1 16 4 M4 16 l-2 -2 M4 16 l0 3"/>', a: function () { player.swordArc = Math.min(3.3, player.swordArc + 0.45); player.swordRange += 12; } },
-  { n: "Sledgeblade", d: "+80% knockback. Smash foes into pillars.", icon: '<path d="M12 3 v10 M8 13 h8 l-4 8 Z"/>', a: function () { player.knockPow *= 1.8; } },
-  { n: "Earthshaker", d: "Leaps detonate for 22 damage on landing.", icon: '<path d="M12 4 v8 M12 12 l-4 4 M12 12 l4 4 M4 20 h16"/>', a: function () { player.quake += 22; } },
-  { n: "Bloodletter", d: "Recover 3 life whenever a foe dies.", icon: '<path d="M12 3 q7 8 0 18 q-7 -10 0 -18 Z"/>', a: function () { player.killHeal += 3; } },
-  { n: "Bulwark", d: "+30 maximum life, heal 30 now.", icon: '<path d="M12 3 L20 6 V12 Q20 18 12 21 Q4 18 4 12 V6 Z"/>', a: function () { player.maxhp += 30; player.hp = Math.min(player.maxhp, player.hp + 30); } },
-  { n: "Swift Boots", d: "+12% movement speed.", icon: '<path d="M9 4 v9 q-4 2 -4 7 h14 v-2 q0 -2 -3 -3 l-3 -2 V4 Z"/>', a: function () { player.speed *= 1.12; } },
-  { n: "Ember Charged", d: "+30% fireball damage and one extra pierce.", icon: '<path d="M12 3 q6 7 0 18 q-6 -11 0 -18 Z M12 9 q3 3 0 7"/>', a: function () { player.fireDmg *= 1.3; player.firePierce++; } },
-  { n: "Rime Bloom", d: "+30% frost nova radius and damage.", icon: '<circle cx="12" cy="12" r="4"/><path d="M12 2 v4 M12 18 v4 M2 12 h4 M18 12 h4"/>', a: function () { player.novaR *= 1.3; player.novaDmg *= 1.3; } },
-  { n: "Soul Well", d: "+45% essence regeneration.", icon: '<circle cx="12" cy="12" r="7"/><path d="M12 5 v14" opacity=".6"/>', a: function () { player.essRegen *= 1.45; } },
-  { n: "Alchemist", d: "+2 potions; potions heal 15% more.", icon: '<path d="M10 3 h4 M11 3 v4 M8 10 a4 5 0 1 0 8 0 Z"/>', a: function () { player.potions = Math.min(5, player.potions + 2); player.potionPower += 0.15; } },
-  { n: "Wicked Edge", d: "+10% chance to strike critically.", icon: '<path d="M12 3 v8 M12 11 l-4 4 M12 11 l4 4 M4 20 h16 M12 3 l-2 3 M12 3 l2 3"/>', a: function () { player.critC = Math.min(0.6, player.critC + 0.1); } },
-  { n: "Cruelty", d: "Critical strikes deal 50% more damage.", icon: '<path d="M6 20 L18 6 M18 6 l-4.5 1 M18 6 l-1 4.5 M7 13 l4 4"/>', a: function () { player.critM += 0.5; } }
-];
 
 /* ---------- waves ---------- */
 var ETYPES = {
   imp: { r: 10, hp: function (w) { return 16 + w * 4; }, spd: 150, dmg: 7, xp: 8, gold: [1, 3], atkCd: 1.1 },
   skeleton: { r: 13, hp: function (w) { return 30 + w * 8; }, spd: 95, dmg: 11, xp: 13, gold: [2, 5], atkCd: 1.3 },
-  ghoul: { r: 17, hp: function (w) { return 75 + w * 16; }, spd: 70, dmg: 17, xp: 26, gold: [5, 9], atkCd: 1.6 },
+  ghoul: { r: 17, hp: function (w) { return 70 + w * 14; }, spd: 70, dmg: 17, xp: 26, gold: [5, 9], atkCd: 1.6 },
   cultist: { r: 12, hp: function (w) { return 24 + w * 5; }, spd: 78, dmg: 9, xp: 15, gold: [2, 6], atkCd: 2.4, range: 400 },
   charger: { r: 15, hp: function (w) { return 42 + w * 9; }, spd: 62, dmg: 13, xp: 20, gold: [3, 7], atkCd: 2.6 },
-  elite: { r: 15, hp: function (w) { return (30 + w * 8) * 4.5; }, spd: 85, dmg: 16, xp: 70, gold: [18, 30], atkCd: 1.2 }
+  elite: { r: 15, hp: function (w) { return (30 + w * 8) * 4; }, spd: 85, dmg: 16, xp: 70, gold: [18, 30], atkCd: 1.2 }
 };
 function buildWave(n) {
-  var q = [], count = Math.min(6 + n * 2, 42);
+  var q = [], count = Math.min(6 + n * 2, 34);
   for (var i = 0; i < count; i++) {
     var t = "imp", r = Math.random();
     if (n >= 2 && r < 0.45) t = "skeleton";
@@ -1047,40 +1318,145 @@ function nextWaveNow() {
 /* ---------- shop ---------- */
 var shopBought = { whet: 0, skin: 0, chalice: 0, boots: 0 };
 var SHOP = [
-  { id: "potion", n: "Healing Potion", d: "+1 to your belt (max 5). Restores 45% of life.", price: function () { return 40; },
-    can: function () { return player.potions < 5; }, buy: function () { player.potions++; } },
-  { id: "whet", n: "Whetstone", d: "+15% sword damage.", price: function () { return Math.round(60 * Math.pow(1.5, shopBought.whet)); },
-    can: function () { return true; }, buy: function () { player.swordDmg *= 1.15; shopBought.whet++; } },
-  { id: "skin", n: "Iron Skin", d: "+5 armor — each point blunts about 1.4% of damage.", price: function () { return Math.round(80 * Math.pow(1.5, shopBought.skin)); },
-    can: function () { return true; }, buy: function () { player.armor += 5; shopBought.skin++; } },
-  { id: "chalice", n: "Essence Chalice", d: "+25 maximum essence, refilled.", price: function () { return Math.round(70 * Math.pow(1.4, shopBought.chalice)); },
-    can: function () { return true; }, buy: function () { player.maxess += 25; player.ess = player.maxess; shopBought.chalice++; } },
-  { id: "boots", n: "Grave Boots", d: "+6% movement speed.", price: function () { return Math.round(60 * Math.pow(1.5, shopBought.boots)); },
-    can: function () { return true; }, buy: function () { player.speed *= 1.06; shopBought.boots++; } }
+  { id: "potion", n: "Healing Potion", d: "Add one to your belt.",
+    price: function () { return 40; }, bought: function () { return 0; },
+    can: function () { return player.potions < 5; },
+    val: function () { return "Potions <b>" + player.potions + "/5</b><span class=\"sep\">→</span><span class=\"to num\">" + Math.min(5, player.potions + 1) + "/5</span> · heals " + Math.round(player.potionPower * 100) + "%"; },
+    buy: function () { player.potions++; } },
+  { id: "whet", n: "Whetstone", d: "+15% sword damage.",
+    price: function () { return Math.round(60 * Math.pow(1.5, shopBought.whet)); }, bought: function () { return shopBought.whet; },
+    can: function () { return true; },
+    val: function () { return "Sword damage <b>" + Math.round(player.swordDmg) + "</b><span class=\"sep\">→</span><span class=\"to num\">" + Math.round(player.swordDmg * 1.15) + "</span>"; },
+    buy: function () { player.swordDmg *= 1.15; shopBought.whet++; } },
+  { id: "skin", n: "Iron Skin", d: "+5 armor — each point blunts 1.4% of damage.",
+    price: function () { return Math.round(80 * Math.pow(1.5, shopBought.skin)); }, bought: function () { return shopBought.skin; },
+    can: function () { return true; },
+    val: function () {
+      var red = function (a) { return Math.round(Math.min(0.6, a * 0.014) * 100); };
+      return "Armor <b>" + player.armor + "</b><span class=\"sep\">→</span><span class=\"to num\">" + (player.armor + 5) + "</span> · damage taken −" + red(player.armor) + "%<span class=\"sep\">→</span><span class=\"to num\">−" + red(player.armor + 5) + "%</span>";
+    },
+    buy: function () { player.armor += 5; shopBought.skin++; } },
+  { id: "chalice", n: "Essence Chalice", d: "+25 maximum essence, refilled.",
+    price: function () { return Math.round(70 * Math.pow(1.4, shopBought.chalice)); }, bought: function () { return shopBought.chalice; },
+    can: function () { return true; },
+    val: function () { return "Max essence <b>" + player.maxess + "</b><span class=\"sep\">→</span><span class=\"to num\">" + (player.maxess + 25) + "</span> · refilled"; },
+    buy: function () { player.maxess += 25; player.ess = player.maxess; shopBought.chalice++; } },
+  { id: "boots", n: "Grave Boots", d: "+6% movement speed.",
+    price: function () { return Math.round(60 * Math.pow(1.5, shopBought.boots)); }, bought: function () { return shopBought.boots; },
+    can: function () { return true; },
+    val: function () { return "Move speed <b>" + Math.round(player.speed) + "</b><span class=\"sep\">→</span><span class=\"to num\">" + Math.round(player.speed * 1.06) + "</span>"; },
+    buy: function () { player.speed *= 1.06; shopBought.boots++; } }
 ];
+var shopSel = 0;
 function renderShop() {
   document.getElementById("shopGold").textContent = Math.floor(player.gold) + " gold";
   var list = document.getElementById("shopList");
   list.innerHTML = "";
-  SHOP.forEach(function (s) {
+  SHOP.forEach(function (s, idx) {
     var row = document.createElement("div");
     row.className = "shop-row";
     var price = s.price();
     var disabled = !s.can() || player.gold < price;
-    row.innerHTML = '<div><div class="si-name">' + s.n + '</div><div class="si-desc">' + s.d + '</div></div>' +
+    var boughtN = s.bought();
+    row.innerHTML =
+      '<div><div class="si-name">' + s.n + (boughtN ? ' <span class="bought num">×' + boughtN + "</span>" : "") + "</div>" +
+      '<div class="si-desc">' + s.d + "</div>" +
+      '<div class="si-val">' + s.val() + "</div></div>" +
       '<button class="shop-buy num"' + (disabled ? " disabled" : "") + ">" + price + " g</button>";
-    row.querySelector("button").addEventListener("click", function () {
-      if (player.gold < s.price() || !s.can()) return;
-      player.gold -= s.price();
-      s.buy();
-      sfx("buy");
-      renderShop();
-    });
+    row.querySelector("button").addEventListener("click", function () { attemptBuy(idx); });
+    row.addEventListener("mouseenter", function () { shopSel = idx; paintShopSel(); });
     list.appendChild(row);
   });
+  paintShopSel();
 }
-function openShop() { resumeState = state; state = "shop"; renderShop(); document.getElementById("ov-shop").classList.add("open"); }
+function paintShopSel() {
+  var rows = document.querySelectorAll("#shopList .shop-row");
+  for (var i = 0; i < rows.length; i++) rows[i].classList.toggle("sel", i === shopSel);
+}
+function moveShopSel(d) {
+  shopSel = (shopSel + d + SHOP.length) % SHOP.length;
+  paintShopSel();
+}
+function attemptBuy(idx) {
+  var s = SHOP[idx];
+  if (!s.can() || player.gold < s.price()) { sfx("hit"); return; }
+  player.gold -= s.price();
+  s.buy();
+  player.powerLast = powerScore();
+  sfx("buy");
+  renderShop();
+}
+function openShop() { resumeState = state; state = "shop"; shopSel = 0; renderShop(); document.getElementById("ov-shop").classList.add("open"); }
 function closeShop() { document.getElementById("ov-shop").classList.remove("open"); state = resumeState; }
+
+/* ---------- hero stats sheet ---------- */
+function openStats() { resumeState = state; state = "stats"; renderStats(); document.getElementById("ov-stats").classList.add("open"); }
+function closeStats() { document.getElementById("ov-stats").classList.remove("open"); state = resumeState; }
+function statRow(label, value, up) {
+  return '<div class="stat-row"><span class="label">' + label + '</span><span class="value num' + (up ? " up" : "") + '">' + value + "</span></div>";
+}
+function dmgTr(name, tag, rank, cd, cost, range, exp) {
+  return '<tr><td class="sk"><span class="tag ' + tag + '">' + tag + "</span> <b>" + name + "</b></td>" +
+    '<td class="num">' + rank + "</td><td class=\"num\">" + cd + "</td><td class=\"num\">" + cost + "</td>" +
+    '<td class="num">' + range + '</td><td class="num up">' + exp + "</td></tr>";
+}
+function renderStats() {
+  var p = player;
+  document.getElementById("stTitle").textContent =
+    kills >= 150 ? "Bane of the Pale Court" : kills >= 50 ? "Scourge of the Realms" : kills >= 15 ? "Wanderer of the Ashen Road" : "Fledgling of the Ossuary";
+  document.getElementById("stSub").innerHTML =
+    "<b>Wanderer</b> · Level " + p.level + " &nbsp;·&nbsp; " + curMap().name + " · Wave " + Math.max(1, wave);
+  var pw = powerScore(), delta = pw - p.powerLast;
+  document.getElementById("stPower").textContent = pw.toLocaleString("en-US");
+  document.getElementById("stPowerDelta").textContent = delta > 0 ? "+" + delta + " since last level" : "";
+  var critMult = 1 + p.critC * (p.critM - 1);
+  var swAvg = p.swordDmg * 1.025, fiAvg = p.fireDmg * 1.025, noAvg = p.novaDmg;
+  document.getElementById("sheetBody").innerHTML =
+    '<div class="sheet-grid-3">' +
+      '<div class="stat-block"><h5>Offense</h5>' +
+        statRow("Sword DPS", Math.round(swAvg / p.swingCd * critMult)) +
+        statRow("Sword Damage", Math.round(swAvg) + " avg") +
+        statRow("Fireball Damage", Math.round(fiAvg * critMult) + " crit exp.") +
+        statRow("Frost Nova Damage", Math.round(noAvg)) +
+        statRow("Critical Strike Chance", Math.round(p.critC * 100) + "%", p.critC > 0.15) +
+        statRow("Critical Strike Damage", "×" + p.critM.toFixed(1)) +
+      "</div>" +
+      '<div class="stat-block"><h5>Defense</h5>' +
+        statRow("Life", p.maxhp) +
+        statRow("Armor", p.armor, p.armor > 0) +
+        statRow("Damage Reduction", Math.round(Math.min(0.6, p.armor * 0.014) * 100) + "%") +
+        statRow("Life per Kill", p.killHeal > 0 ? "+" + p.killHeal : "—", p.killHeal > 0) +
+      "</div>" +
+      '<div class="stat-block"><h5>Resource</h5>' +
+        statRow("Maximum Essence", p.maxess) +
+        statRow("Essence Regeneration", p.essRegen.toFixed(1) + " /s") +
+        statRow("Potion Heal", Math.round(p.potionPower * 100) + "% of life") +
+        statRow("Potions Carried", p.potions + " / 5") +
+      "</div>" +
+    "</div>" +
+    '<div class="sheet-grid-2">' +
+      '<div class="stat-block"><h5>Adventure</h5>' +
+        statRow("Movement Speed", Math.round(p.speed) + "  (+" + Math.round((p.speed / 265 - 1) * 100) + "%)") +
+        statRow("Pickup Radius", Math.round(p.pickupR)) +
+        statRow("Knockback", "×" + p.knockPow.toFixed(1)) +
+        statRow("Quake on Leap", p.quake > 0 ? Math.round(p.quake) + " dmg" : "—", p.quake > 0) +
+      "</div>" +
+      '<div class="stat-block"><h5>Damage Breakdown <span class="bonus num">per cast · incl. crit expectation</span></h5>' +
+        '<table class="dmg-table"><thead><tr><th>Skill</th><th>Rank</th><th>Cooldown</th><th>Essence</th><th>Damage Range</th><th>Crit Exp.</th></tr></thead><tbody>' +
+        dmgTr("Sword", "blood", "Lv " + skillRank("sword"), p.swingCd.toFixed(2) + "s", "—",
+          Math.round(p.swordDmg * 0.9) + " – " + Math.round(p.swordDmg * 1.15), Math.round(swAvg * critMult)) +
+        dmgTr("Fireball", "fire", "Lv " + skillRank("fire"), "—", p.fireCost,
+          Math.round(p.fireDmg * 0.9) + " – " + Math.round(p.fireDmg * 1.15) + (p.firePierce ? " ×" + (p.firePierce + 1) + " foes" : ""), Math.round(fiAvg * critMult)) +
+        dmgTr("Nova", "frost", "Lv " + skillRank("nova"), p.novaCd.toFixed(1) + "s", p.novaCost,
+          Math.round(p.novaDmg * 0.9) + " – " + Math.round(p.novaDmg * 1.1) + " · R" + Math.round(p.novaR), Math.round(noAvg)) +
+        dmgTr("Leap", "blood", "Lv " + skillRank("leap"), p.leapCd.toFixed(1) + "s", "—",
+          p.quake > 0 ? Math.round(p.quake * 0.9) + " – " + Math.round(p.quake * 1.1) + " area" : "no damage", p.quake > 0 ? Math.round(p.quake) : "—") +
+        "</tbody></table>" +
+      "</div>" +
+    "</div>";
+  var mm = Math.floor(gameTime / 60), ss = Math.floor(gameTime % 60);
+  document.getElementById("stUptime").textContent = "Uptime " + mm + ":" + (ss < 10 ? "0" : "") + ss + " · " + kills + " kills";
+}
 function pauseGame() { resumeState = state; state = "pause"; document.getElementById("ov-pause").classList.add("open"); }
 function resumeGame() { document.getElementById("ov-pause").classList.remove("open"); state = resumeState; }
 document.getElementById("btnResume").addEventListener("click", resumeGame);
@@ -1105,6 +1481,7 @@ function startRun() {
   document.getElementById("ov-menu").classList.remove("open");
   document.getElementById("ov-death").classList.remove("open");
   shopBought = { whet: 0, skin: 0, chalice: 0, boots: 0 };
+  for (var i = 0; i < UPGRADES.length; i++) UPGRADES[i].taken = 0;
   resetGame();
   startWave(1);
   state = "play";
@@ -1233,7 +1610,7 @@ function update(dt) {
     player.z += (ground - player.z) * Math.min(1, 14 * dt);
   }
 
-  if ((mouse.down || touchAttack || keys.j) && player.swingT <= 0) doSwing();
+  if ((mouse.down || touchAttack || keys["1"]) && player.swingT <= 0) doSwing();
 
   /* enemies */
   for (var i = 0; i < enemies.length; i++) {
@@ -1355,9 +1732,12 @@ function update(dt) {
     if (pr.dead) continue;
     for (var w = 0; w < props.length; w++) {
       var un = props[w];
-      if (!un.breakable || un.dead) continue;
+      if (un.dead || (!un.breakable && !un.solid)) continue;
       var ru = un.r + pr.r;
-      if (dist2(pr.x, pr.y, un.x, un.y) < ru * ru) { hitProp(un); pr.dead = true; break; }
+      if (dist2(pr.x, pr.y, un.x, un.y) < ru * ru) {
+        if (un.breakable) hitProp(un); else clangProp(un);
+        pr.dead = true; break;
+      }
     }
   }
   projectiles = projectiles.filter(function (p2) { return !p2.dead; });
@@ -1944,6 +2324,10 @@ function drawStone(p) {
   ctx.beginPath();
   ctx.moveTo(0, -52); ctx.lineTo(-4, -40); ctx.lineTo(2, -30); ctx.lineTo(-2, -18);
   ctx.stroke();
+  if (p.damaged) {
+    ctx.strokeStyle = "rgba(8,10,8,0.85)"; ctx.lineWidth = 2.2;
+    ctx.beginPath(); ctx.moveTo(-6, -6); ctx.lineTo(0, -28); ctx.lineTo(-3, -50); ctx.stroke();
+  }
   ctx.restore();
 }
 function drawWisp(p) {
@@ -2245,8 +2629,10 @@ function drawPlayer() {
   ctx.save();
   ctx.translate(Math.cos(bladeScreenA) * 12, -10 + Math.sin(bladeScreenA) * 8);
   ctx.rotate(bladeScreenA);
+  /* blade grows with sword range so the art matches the true reach */
+  var bladeLen = clamp(12 + p.swordRange * 0.28, 26, 62);
   ctx.strokeStyle = "#b9b19c"; ctx.lineWidth = 3;
-  ctx.beginPath(); ctx.moveTo(6, 0); ctx.lineTo(32, 0); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(6, 0); ctx.lineTo(bladeLen, 0); ctx.stroke();
   ctx.strokeStyle = "#6b5a35"; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(6, -4); ctx.lineTo(6, 4); ctx.stroke();
   ctx.fillStyle = "#463b2e"; ctx.fillRect(0, -1.5, 6, 3);
@@ -2424,12 +2810,33 @@ function drawProp(p) {
 var hpFill = document.getElementById("hpFill"), hpNum = document.getElementById("hpNum");
 var essFill = document.getElementById("essFill"), essNum = document.getElementById("essNum");
 var xpFill = document.getElementById("xpFill");
-var uiFoes = document.getElementById("uiFoes"), uiLevel = document.getElementById("uiLevel"), uiGold = document.getElementById("uiGold");
+var uiFoes = document.getElementById("uiFoes"), uiLevel = document.getElementById("uiLevel"), uiGold = document.getElementById("uiGold"), uiPower = document.getElementById("uiPower");
 var uiPotions = document.getElementById("uiPotions");
 var cdSwing = document.getElementById("cdSwing"), cdNova = document.getElementById("cdNova"), cdFire = document.getElementById("cdFire"), cdLeap = document.getElementById("cdLeap");
+var slotSword = document.getElementById("slotSword"), slotFire = document.getElementById("slotFire"),
+    slotNova = document.getElementById("slotNova"), slotLeap = document.getElementById("slotLeap"), slotPotion = document.getElementById("slotPotion");
 var interNum = document.getElementById("interNum");
 var joyBase = document.getElementById("joyBase"), joyKnob = document.getElementById("joyKnob");
+var dbgEl = null, miniEl = null;
+function miniRow(label, value) { return '<div class="r">' + label + " <b>" + value + "</b></div>"; }
 function updateHUD() {
+  if (!miniEl) miniEl = document.getElementById("miniStats");
+  miniEl.style.display = (state === "menu" || state === "dead") ? "none" : "";
+  miniEl.innerHTML =
+    '<div class="pw">Power <b class="num">' + powerScore() + "</b></div>" +
+    miniRow("Sword", Math.round(player.swordDmg)) +
+    miniRow("Fire", Math.round(player.fireDmg)) +
+    miniRow("Nova", Math.round(player.novaDmg)) +
+    miniRow("Crit", Math.round(player.critC * 100) + "% ×" + player.critM.toFixed(1)) +
+    miniRow("Armor", player.armor) +
+    miniRow("Speed", Math.round(player.speed));
+  if (!dbgEl) dbgEl = document.getElementById("dbg");
+  if (!dbgEl.classList.contains("hidden")) {
+    var ne = nearestEnemy(player.x, player.y);
+    var nd = ne ? Math.round(Math.hypot(ne.x - player.x, ne.y - player.y)) : -1;
+    dbgEl.textContent = "pos " + Math.round(player.x) + "," + Math.round(player.y) +
+      "  nearest " + nd + "  aim " + Math.round(player.aim / TAU * 360) + "°  foes " + enemies.length;
+  }
   hpFill.style.height = (player.hp / player.maxhp * 100) + "%";
   hpNum.textContent = Math.ceil(player.hp) + " / " + player.maxhp;
   essFill.style.height = (player.ess / player.maxess * 100) + "%";
@@ -2438,11 +2845,17 @@ function updateHUD() {
   uiFoes.textContent = enemies.length + spawnQueue.length;
   uiLevel.textContent = player.level;
   uiGold.textContent = Math.floor(player.gold);
+  uiPower.textContent = powerScore();
   uiPotions.textContent = player.potions;
   cdSwing.style.height = (player.swingT / player.swingCd * 100) + "%";
   cdNova.style.height = (player.novaT / player.novaCd * 100) + "%";
   cdLeap.style.height = (player.leapT / player.leapCd * 100) + "%";
   cdFire.style.height = (player.ess < player.fireCost ? 100 : 0) + "%";
+  slotSword.title = "Sword — " + Math.round(player.swordDmg) + " dmg · " + player.swingCd.toFixed(2) + "s cd · " + Math.round(player.swordArc / TAU * 360) + "° arc · free";
+  slotFire.title = "Fireball — " + Math.round(player.fireDmg) + " dmg · " + player.fireCost + " essence · pierce " + player.firePierce;
+  slotNova.title = "Frost Nova — " + Math.round(player.novaDmg) + " dmg · " + player.novaCd.toFixed(1) + "s cd · " + player.novaCost + " essence";
+  slotLeap.title = "Leap — " + player.leapCd.toFixed(1) + "s cd" + (player.quake ? " · quake " + Math.round(player.quake) + " dmg" : "");
+  slotPotion.title = "Healing Potion — restores " + Math.round(player.potionPower * 100) + "% of life";
   if (state === "intermission") interNum.textContent = Math.ceil(interTimer);
 }
 

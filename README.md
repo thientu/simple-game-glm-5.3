@@ -12,8 +12,9 @@ Fight through waves of demons across five rotating realms. Five waves clear a re
 - **Fireball** — piercing ranged bolt, costs essence
 - **Frost Nova** — chills enemies with a 55% slow
 - **Leap** — gap closer; detonates for area damage with the Earthshaker boon
-- **Level-up boons** — pick 1 of 3 upgrade cards each level (crit, lifesteal, quake leaps, and more)
-- **Shop** — spend gold between waves on potions, whetstones, armor, essence, and boots
+- **Level-up boons** — pick 1 of 3 upgrade cards each level (crit, lifesteal, quake leaps, and more); boons stack — a second pick adds to the first, and each card shows its level, cooldown, essence cost, and exact current → next values
+- **Hero sheet** — a compact stat panel (power, skill damage, crit, armor, speed) sits on the left edge during play; press `C` for the full sheet: DPS, crit, armor, essence, and a per-skill damage breakdown
+- **Shop** — spend gold between waves; every item shows the real stat change (current → new) before you buy
 - **Loot** — chests, breakables, and shard drops from elites
 
 ### Realms
@@ -35,14 +36,18 @@ Imps, skeletons, and ghouls rush you; cultists keep their distance and throw dod
 | Action | Keyboard / Mouse |
 |---|---|
 | Move | `WASD` or arrow keys |
-| Sword | `LMB` or `J` |
-| Fireball | `RMB` or `K` (auto-aim) |
+| Sword | `LMB` hold or `1` (auto-aim) |
+| Fireball | `RMB` or `2` (auto-aim) |
+| Frost Nova | `3` |
 | Leap | `Space` |
-| Frost Nova | `1` |
-| Potion | `Q` |
+| Potion | `4` |
+| Hero sheet | `C` |
+| Pick boon card | `Tab` / arrows, `Enter` to take |
+| Shop buy | `Tab` / arrows, `Enter` to buy |
 | Shop (intermission) | `B` |
 | Mute | `M` |
 | Pause | `Esc` or `P` |
+| Debug overlay | `` ` `` (backtick) |
 
 Touch devices get an on-screen joystick and buttons automatically.
 
