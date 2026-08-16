@@ -3,7 +3,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#131110">
 <title>Ashes of Sanctuary — Ossuary Court (2.5D)</title>
 <style>
 :root {
@@ -56,7 +57,20 @@ canvas { display: block; position: fixed; inset: 0; }
 .ov-title { font-family: var(--font-display); text-transform: uppercase; letter-spacing: .32em; font-size: clamp(24px, 4vw, 40px); color: #e8dcc0; text-shadow: 0 0 26px rgba(168,58,40,.55), 0 2px 0 #0a0806; }
 .ov-sub { margin-top: 10px; color: var(--muted); letter-spacing: .34em; text-transform: uppercase; font-size: 12px; }
 
-#ov-menu .panel-frame { width: min(560px, 94vw); text-align: center; padding: 44px 34px 34px; }
+#ov-menu .panel-frame {
+  width: min(560px, 94vw); text-align: center; padding: 44px 34px 34px;
+  max-height: calc(100vh - 40px); max-height: calc(100dvh - 40px); overflow: auto;
+}
+/* Short landscape phones: compact the menu so the start button stays reachable */
+@media (max-height: 540px) {
+  #ov-menu .panel-frame { padding: 20px 26px 18px; }
+  .menu-crest { width: 34px; height: 34px; margin-bottom: 8px; }
+  #ov-menu .ov-title { font-size: clamp(18px, 4.5vh, 26px); }
+  #ov-menu .ov-sub { margin-top: 4px; }
+  .controls-hint { margin: 10px auto 12px; line-height: 1.55; font-size: 12px; }
+  .controls-hint .flavor { display: none; }
+  .best-line { margin-top: 8px; }
+}
 .menu-crest { width: 56px; height: 56px; margin: 0 auto 18px; opacity: .9; filter: drop-shadow(0 0 14px rgba(168,58,40,.5)); }
 .controls-hint { margin: 22px auto 26px; max-width: 420px; font-size: 13px; color: var(--muted); line-height: 1.9; text-align: left; }
 .controls-hint b { color: var(--fg); font-family: var(--font-display); font-size: 11.5px; letter-spacing: .1em; border: 1px solid var(--border); padding: 1px 7px; margin-right: 6px; }
@@ -118,7 +132,7 @@ canvas { display: block; position: fixed; inset: 0; }
 .shop-foot { text-align: center; margin-top: 20px; }
 
 /* ---------- hero stats sheet (from Open Design hero-stats.html) ---------- */
-#ov-stats .panel-frame { width: min(1040px, 96vw); padding: 0; }
+#ov-stats .panel-frame { width: min(1040px, 96vw); padding: 0; max-height: calc(100vh - 40px); max-height: calc(100dvh - 40px); overflow: auto; }
 .sheet-head {
   display: grid; grid-template-columns: auto 1fr auto; gap: 22px; align-items: center;
   padding: 24px 46px 18px; border-bottom: 1px solid var(--border);
@@ -186,13 +200,13 @@ canvas { display: block; position: fixed; inset: 0; }
 #waveBanner.show { animation: bannerA 2.4s ease forwards; }
 @keyframes bannerA { 0% { opacity: 0; transform: translateY(10px); } 14% { opacity: 1; transform: none; } 70% { opacity: 1; } 100% { opacity: 0; } }
 
-#tracker { position: fixed; top: 16px; right: 16px; text-align: right; text-shadow: 0 1px 3px #050403; }
+#tracker { position: fixed; top: calc(16px + env(safe-area-inset-top, 0px)); right: calc(16px + env(safe-area-inset-right, 0px)); text-align: right; text-shadow: 0 1px 3px #050403; }
 #tracker h4 { font-family: var(--font-display); text-transform: uppercase; letter-spacing: .2em; font-size: 12px; color: var(--gold); margin-bottom: 7px; }
 #tracker .tr { font-size: 13px; margin-bottom: 4px; color: var(--fg); }
 #tracker .tr span { color: var(--muted); }
 
 #interBar {
-  position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 25;
+  position: fixed; top: calc(16px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); z-index: 25;
   display: flex; align-items: center; gap: 14px; padding: 10px 18px;
   background: rgba(24,20,16,.92); border: 1px solid var(--border); clip-path: var(--notch);
 }
@@ -203,7 +217,7 @@ canvas { display: block; position: fixed; inset: 0; }
 
 #hudBottom {
   position: fixed; left: 0; right: 0; bottom: 0; display: flex; align-items: flex-end; justify-content: center;
-  gap: clamp(10px, 3vw, 36px); padding: 0 18px 16px;
+  gap: clamp(10px, 3vw, 36px); padding: 0 18px calc(16px + env(safe-area-inset-bottom, 0px));
 }
 .orb {
   width: clamp(76px, 9vw, 116px); aspect-ratio: 1; border-radius: 50%;
@@ -236,7 +250,7 @@ canvas { display: block; position: fixed; inset: 0; }
 #dbg { position: fixed; left: 12px; bottom: 14px; z-index: 22; font-size: 11px; color: var(--faint);
   font-variant-numeric: tabular-nums; text-shadow: 0 1px 2px #050403; pointer-events: none; white-space: pre; }
 #miniStats {
-  position: fixed; left: 14px; top: 16px; z-index: 21; pointer-events: none;
+  position: fixed; left: calc(14px + env(safe-area-inset-left, 0px)); top: calc(16px + env(safe-area-inset-top, 0px)); z-index: 21; pointer-events: none;
   min-width: 148px; padding: 10px 14px 9px;
   background: rgba(24,20,16,.72); border: 1px solid var(--border);
   clip-path: var(--notch); font-size: 12px; line-height: 1.85; color: var(--muted);
@@ -263,6 +277,37 @@ body.touch #touchUI { display: block; }
 #touchBtns button:active { border-color: var(--accent-hi); background: rgba(90,36,26,.7); }
 #touchBtns svg { width: 30px; height: 30px; stroke: #b5a98e; fill: none; stroke-width: 1.7; }
 #tAtk { grid-row: span 2; width: 78px !important; height: 78px !important; }
+/* In landscape the action buttons move to the bottom-right corner (beside the centered HUD,
+   which leaves the corners free); vertical space is scarce, so they shrink slightly. */
+@media (orientation: landscape) {
+  #touchBtns {
+    right: max(14px, env(safe-area-inset-right, 0px)); bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+    grid-template-columns: repeat(2, 60px); gap: 10px;
+  }
+  #touchBtns button { width: 60px; height: 60px; }
+  #touchBtns svg { width: 26px; height: 26px; }
+  #tAtk { width: 68px !important; height: 68px !important; }
+}
+/* Compact the bottom HUD on shorter landscape phones so it clears the corner buttons */
+@media (orientation: landscape) and (max-width: 740px) {
+  .orb { width: 64px; }
+  .skill-slot { width: 40px; }
+  #hudBottom { gap: 10px; }
+}
+
+/* ---------- rotate hint (portrait on touch) ---------- */
+#rotateHint {
+  display: none; position: fixed; inset: 0; z-index: 60;
+  place-content: center; justify-items: center; gap: 14px; text-align: center;
+  background: radial-gradient(ellipse at 50% 42%, rgba(24,20,16,.92), rgba(8,6,5,.98));
+}
+@media (orientation: portrait) { body.touch #rotateHint { display: grid; } }
+#rotateHint svg { width: 58px; height: 58px; stroke: var(--gold); fill: none; stroke-width: 1.3;
+  filter: drop-shadow(0 0 12px rgba(212,169,79,.35)); animation: rhTilt 2.4s ease-in-out infinite; }
+#rotateHint .rh-title { font-family: var(--font-display); text-transform: uppercase; letter-spacing: .3em;
+  font-size: clamp(15px, 4vw, 19px); color: #e8dcc0; text-shadow: 0 2px 0 #0a0806, 0 0 24px rgba(168,58,40,.35); }
+#rotateHint .rh-sub { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+@keyframes rhTilt { 0%, 22% { transform: rotate(0deg); } 58%, 78% { transform: rotate(-90deg); } 100% { transform: rotate(0deg); } }
 </style>
 </head>
 <body>
@@ -324,6 +369,12 @@ body.touch #touchUI { display: block; }
   </div>
 </div>
 
+<div id="rotateHint">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7.5" y="2.5" width="9" height="19" rx="2"/><path d="M10.5 19.5 h3"/></svg>
+  <div class="rh-title">Rotate your device</div>
+  <div class="rh-sub">The Realms open in landscape</div>
+</div>
+
 <div class="overlay open" id="ov-menu">
   <div class="panel-frame">
     <svg class="menu-crest" viewBox="0 0 100 100" aria-hidden="true">
@@ -338,7 +389,7 @@ body.touch #touchUI { display: block; }
       <div><b>WASD</b> Move &nbsp; <b>LMB / 1</b> Sword &nbsp; <b>RMB / 2</b> Fireball</div>
       <div><b>3</b> Frost nova &nbsp; <b>SPACE</b> Leap &nbsp; <b>4</b> Potion</div>
       <div><b>C</b> Hero sheet &nbsp; <b>B</b> Shop &nbsp; <b>TAB</b> Pick cards &nbsp; <b>M</b> Mute</div>
-      <div style="margin-top:10px; color:var(--faint)">Five waves clear a realm, then the way opens. Shatter chests, drink from shrines, and mind the lava.</div>
+      <div class="flavor" style="margin-top:10px; color:var(--faint)">Five waves clear a realm, then the way opens. Shatter chests, drink from shrines, and mind the lava.</div>
     </div>
     <button class="btn-d4 primary" id="btnStart">Enter the Realms</button>
     <div class="best-line">Deepest wave <b id="uiBest" class="num">—</b></div>
@@ -879,9 +930,32 @@ document.getElementById("tNova").addEventListener("pointerdown", function (e) { 
 document.getElementById("tJump").addEventListener("pointerdown", function (e) { e.preventDefault(); doLeap(); });
 document.getElementById("tPot").addEventListener("pointerdown", function (e) { e.preventDefault(); usePotion(); });
 
-if ((window.matchMedia && window.matchMedia("(pointer: coarse)").matches) || "ontouchstart" in window) {
+var touchPrimary = !!(window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
+if (touchPrimary || "ontouchstart" in window) {
   document.body.classList.add("touch");
 }
+
+/* Mobile: go fullscreen and lock landscape. Needs a user gesture; browsers that
+   can't lock orientation (iOS Safari) fall back to the portrait rotate hint. */
+function requestLandscapeFullscreen() {
+  if (!touchPrimary) return;
+  var el = document.documentElement;
+  var req = el.requestFullscreen || el.webkitRequestFullscreen;
+  if (!req) return;
+  Promise.resolve(req.call(el))
+    .then(function () {
+      if (screen.orientation && screen.orientation.lock) return screen.orientation.lock("landscape");
+    })
+    .catch(function () { /* denied / unsupported — rotate hint covers portrait */ });
+}
+
+/* Auto-pause if a touch device ends up in portrait mid-run (rotate hint blocks the view) */
+var portraitMq = window.matchMedia("(orientation: portrait)");
+function onOrientationChange(mq) {
+  if (mq.matches && document.body.classList.contains("touch") && (state === "play" || state === "intermission")) pauseGame();
+}
+if (portraitMq.addEventListener) portraitMq.addEventListener("change", onOrientationChange);
+else if (portraitMq.addListener) portraitMq.addListener(onOrientationChange);
 
 /* ---------- helpers ---------- */
 function mousePlane() {
@@ -1490,8 +1564,8 @@ function startRun() {
   state = "play";
   sfx("level");
 }
-document.getElementById("btnStart").addEventListener("click", startRun);
-document.getElementById("btnRestart").addEventListener("click", startRun);
+document.getElementById("btnStart").addEventListener("click", function () { requestLandscapeFullscreen(); startRun(); });
+document.getElementById("btnRestart").addEventListener("click", function () { requestLandscapeFullscreen(); startRun(); });
 
 var bannerEl = document.getElementById("waveBanner");
 function banner(text) {

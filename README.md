@@ -49,7 +49,7 @@ Imps, skeletons, and ghouls rush you; cultists keep their distance and throw dod
 | Pause | `Esc` or `P` |
 | Debug overlay | `` ` `` (backtick) |
 
-Touch devices get an on-screen joystick and buttons automatically.
+Touch devices get an on-screen joystick and buttons automatically. The game is designed for landscape: tapping **Enter the Realms** (or **Rise Again**) requests fullscreen and locks landscape where the browser allows it (Android Chrome). On browsers that can't lock orientation (iOS Safari), a "rotate your device" prompt covers the screen in portrait, and the game auto-pauses if you rotate mid-run.
 
 ## Run locally
 
