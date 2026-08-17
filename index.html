@@ -215,6 +215,97 @@ canvas { display: block; position: fixed; inset: 0; }
 #interBar button { font-family: var(--font-display); text-transform: uppercase; letter-spacing: .14em; font-size: 11.5px; padding: 8px 14px; border: 1px solid var(--border-hi); clip-path: var(--notch); }
 #interBar button:hover { border-color: var(--accent-hi); color: #f0d9c8; }
 
+/* ---------- boss bar (realm guardians) ---------- */
+#bossBar {
+  position: fixed; top: calc(54px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%);
+  z-index: 24; width: min(520px, 62vw); text-align: center; pointer-events: none;
+}
+#bossBar .bb-name { font-family: var(--font-display); text-transform: uppercase; letter-spacing: .2em; font-size: 12.5px; color: #e8dcc0; text-shadow: 0 1px 3px #050403; margin-bottom: 5px; }
+#bossBar .bb-track { height: 12px; background: rgba(10,8,6,.85); border: 1px solid var(--border-hi); clip-path: var(--notch); }
+#bossBar .bb-fill { height: 100%; width: 100%; transition: width .2s; background: linear-gradient(90deg, #8f3020, #c6523c); }
+#bossBar .bb-pips { margin-top: 5px; display: flex; justify-content: center; gap: 6px; }
+#bossBar .bb-pips i { width: 8px; height: 8px; border: 1px solid var(--border-hi); transform: rotate(45deg); display: block; }
+#bossBar .bb-pips i.on { background: var(--accent-hi); border-color: var(--accent-hi); }
+
+/* ---------- bestiary HUD button ---------- */
+#btnBeast {
+  position: fixed; left: calc(14px + env(safe-area-inset-left, 0px)); top: calc(178px + env(safe-area-inset-top, 0px));
+  z-index: 22; width: 40px; height: 40px; display: grid; place-items: center; gap: 0;
+  background: rgba(24,20,16,.72); border: 1px solid var(--border); clip-path: var(--notch);
+}
+#btnBeast:hover { border-color: var(--accent-hi); }
+#btnBeast svg { width: 20px; height: 20px; stroke: #b5a98e; fill: none; stroke-width: 1.6; }
+#btnBeast span { position: absolute; top: -7px; right: -4px; font-size: 9px; color: var(--fg); background: #100d0a; border: 1px solid var(--border); padding: 0 4px; line-height: 1.5; }
+
+/* ---------- bestiary panel (from Open Design ashes-of-sanctuary-bestiary) ---------- */
+#ov-beast .panel-frame { width: min(1000px, 96vw); max-height: calc(100vh - 40px); max-height: calc(100dvh - 40px); padding: 22px 26px 20px; display: flex; flex-direction: column; overflow: hidden; }
+.beast-head { display: flex; justify-content: space-between; align-items: center; gap: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+.beast-wrap { display: grid; grid-template-columns: 225px 1fr; gap: 18px; margin-top: 14px; min-height: 0; flex: 1; }
+.beast-nav { overflow: auto; border-right: 1px solid rgba(81,68,58,.6); padding-right: 10px; }
+.beast-nav h5 { font-family: var(--font-display); text-transform: uppercase; letter-spacing: .2em; font-size: 10.5px; color: var(--gold); margin: 12px 0 6px; }
+.beast-nav h5:first-child { margin-top: 0; }
+.beast-item { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 9px; width: 100%;
+  padding: 7px 9px; border: 1px solid transparent; clip-path: var(--notch); text-align: left; transition: border-color .15s, background .15s; }
+.beast-item:hover { background: rgba(46,38,30,.5); }
+.beast-item.active { border-color: var(--el, var(--border-hi)); background: rgba(46,38,30,.65); }
+.beast-item svg { width: 30px; height: 30px; stroke: var(--fg); fill: none; stroke-width: 4; }
+.beast-item .bi-name { display: block; font-family: var(--font-display); font-size: 11.5px; letter-spacing: .05em; }
+.beast-item .bi-sub { display: block; font-size: 9.5px; color: var(--faint); margin-top: 2px; letter-spacing: .08em; }
+.beast-item .dot { width: 7px; height: 7px; background: var(--el); transform: rotate(45deg); }
+.beast-main { overflow: auto; padding-right: 8px; min-height: 0; }
+#ov-beast svg .faint { stroke: var(--faint); }
+#ov-beast svg .elx { stroke: var(--el); }
+#ov-beast svg .fill-dot { fill: var(--el); stroke: none; }
+#ov-beast .halo { animation: beastSpin 9s linear infinite; transform-origin: 60px 60px; }
+@keyframes beastSpin { to { transform: rotate(360deg); } }
+.beast-head-row { display: grid; grid-template-columns: auto 1fr; gap: 22px; align-items: start; }
+.beast-portrait-col { display: flex; flex-direction: column; gap: 10px; }
+.beast-portrait { width: 150px; height: 150px; display: grid; place-items: center; position: relative;
+  background: radial-gradient(ellipse at 50% 40%, rgba(46,38,30,.9), #12100c 78%);
+  border: 1px solid var(--border); clip-path: var(--notch); overflow: hidden; }
+.beast-portrait .aura { position: absolute; inset: -34%; background: radial-gradient(circle, var(--el), transparent 68%); opacity: 0; transition: opacity .5s; }
+.beast-portrait.awakened .aura { opacity: .42; }
+.beast-portrait .beast-sigil { width: 118px; height: 118px; stroke: var(--fg); fill: none; stroke-width: 3.5; position: relative; }
+.beast-portrait.awakened .beast-sigil { filter: drop-shadow(0 0 12px var(--el)); }
+.beast-portrait.flash::after { content: ""; position: absolute; inset: 0; background: #f2e9d4; animation: beastFlash .65s ease forwards; }
+@keyframes beastFlash { 0% { opacity: .9; } 100% { opacity: 0; } }
+.awaken-btn { font-family: var(--font-display); text-transform: uppercase; letter-spacing: .13em; font-size: 10.5px;
+  padding: 9px 10px; border: 1px solid var(--border-hi); clip-path: var(--notch); color: var(--fg); width: 150px; transition: border-color .15s, color .15s; }
+.awaken-btn:hover { border-color: var(--el, var(--accent-hi)); color: #f0d9c8; }
+.beast-info h3 { font-family: var(--font-display); letter-spacing: .1em; text-transform: uppercase; font-size: clamp(17px, 2vw, 22px); color: #e8dcc0; }
+.beast-info .b-title { margin-top: 4px; font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--el); }
+.beast-info .b-lore { margin-top: 10px; font-size: 12.5px; color: var(--muted); font-style: italic; line-height: 1.6; max-width: 54ch; }
+.beast-stats { margin-top: 14px; display: grid; grid-template-columns: repeat(3, auto); gap: 9px 28px; justify-content: start; }
+.beast-stats .l { font-size: 9.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--faint); }
+.beast-stats .v { font-size: 13px; color: var(--fg); margin-top: 3px; }
+.threat i { display: inline-block; width: 7px; height: 7px; transform: rotate(45deg); border: 1px solid var(--border-hi); margin-right: 4px; }
+.threat i.on { background: var(--el); border-color: var(--el); }
+.b-sec { display: flex; align-items: center; gap: 12px; margin: 18px 0 10px; }
+.b-sec h5 { font-family: var(--font-display); text-transform: uppercase; letter-spacing: .22em; font-size: 11px; color: var(--gold); white-space: nowrap; }
+.b-sec::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--border), transparent); }
+.sk-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.sk-card { background: linear-gradient(180deg, rgba(40,33,26,.8), rgba(24,20,16,.9)); border: 1px solid var(--border); clip-path: var(--notch); padding: 12px 12px 10px; }
+.sk-card .sk-top { display: flex; align-items: center; gap: 8px; }
+.sk-card .sk-top svg { width: 22px; height: 22px; stroke: var(--el); fill: none; stroke-width: 1.7; flex: none; }
+.sk-card .sk-name { font-family: var(--font-display); font-size: 12.5px; letter-spacing: .07em; text-transform: uppercase; }
+.sk-card .sk-meta { margin-top: 6px; font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
+.sk-card .sk-desc { margin-top: 7px; font-size: 11.5px; color: var(--muted); line-height: 1.55; }
+.awake-box { border: 1px solid var(--border); background: rgba(21,17,13,.5); padding: 14px 16px; clip-path: var(--notch); }
+.awake-box .a-kicker { font-size: 9.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--faint); }
+.awake-box .a-name { font-family: var(--font-display); font-size: 15px; letter-spacing: .1em; text-transform: uppercase; color: #e8dcc0; margin-top: 5px; }
+.awake-box .a-desc { margin-top: 8px; font-size: 12px; color: var(--muted); font-style: italic; line-height: 1.6; }
+.sk-card.ult { margin-top: 12px; display: grid; grid-template-columns: auto 1fr; gap: 11px; align-items: start; opacity: .7; transition: opacity .35s, border-color .35s; }
+.sk-card.ult.lit { opacity: 1; border-color: var(--el); }
+.sk-card.ult .ult-ico { width: 28px; height: 28px; stroke: var(--el); fill: none; stroke-width: 1.7; margin-top: 2px; }
+@media (max-width: 780px) {
+  .beast-wrap { grid-template-columns: 1fr; }
+  .beast-nav { display: flex; overflow-x: auto; overflow-y: hidden; border-right: none; padding-right: 0; gap: 6px; max-height: 84px; }
+  .beast-nav h5 { display: none; }
+  .beast-item { width: auto; min-width: 168px; }
+  .sk-cards { grid-template-columns: 1fr; }
+  .beast-head-row { grid-template-columns: 1fr; }
+}
+
 #hudBottom {
   position: fixed; left: 0; right: 0; bottom: 0; display: flex; align-items: flex-end; justify-content: center;
   gap: clamp(10px, 3vw, 36px); padding: 0 18px calc(16px + env(safe-area-inset-bottom, 0px));
@@ -327,6 +418,15 @@ body.touch #touchUI { display: block; }
     <button id="btnNext">Begin Now</button>
     <button id="btnShopOpen">Shop</button>
   </div>
+  <div id="bossBar" class="hidden">
+    <div class="bb-name" id="bossName">—</div>
+    <div class="bb-track"><div class="bb-fill" id="bossFill"></div></div>
+    <div class="bb-pips" id="bossPips"></div>
+  </div>
+  <button id="btnBeast" title="Bestiary (B)">
+    <svg viewBox="0 0 24 24"><path d="M5 4 h10 a3 3 0 0 1 3 3 v13 H8 a3 3 0 0 1 -3 -3 Z M8 4 v13"/><path d="M10 8 h4 M10 11 h4"/></svg>
+    <span>B</span>
+  </button>
   <div id="hudBottom">
     <div class="orb hp"><div class="fill" id="hpFill" style="height:100%"></div><div class="glass"></div><div class="orb-num num" id="hpNum">100 / 100</div></div>
     <div class="skillbar">
@@ -384,12 +484,12 @@ body.touch #touchUI { display: block; }
       <circle cx="50" cy="60" r="9" fill="#8f3020"/>
     </svg>
     <div class="ov-title">Ashes of Sanctuary</div>
-    <div class="ov-sub">Five Realms · 2.5D</div>
+    <div class="ov-sub">Nine Realms · 2.5D</div>
     <div class="controls-hint">
       <div><b>WASD</b> Move &nbsp; <b>LMB / 1</b> Sword &nbsp; <b>RMB / 2</b> Fireball</div>
       <div><b>3</b> Frost nova &nbsp; <b>SPACE</b> Leap &nbsp; <b>4</b> Potion</div>
-      <div><b>C</b> Hero sheet &nbsp; <b>B</b> Shop &nbsp; <b>TAB</b> Pick cards &nbsp; <b>M</b> Mute</div>
-      <div class="flavor" style="margin-top:10px; color:var(--faint)">Five waves clear a realm, then the way opens. Shatter chests, drink from shrines, and mind the lava.</div>
+      <div><b>C</b> Hero sheet &nbsp; <b>B</b> Bestiary / Shop &nbsp; <b>TAB</b> Pick cards &nbsp; <b>M</b> Mute</div>
+      <div class="flavor" style="margin-top:10px; color:var(--faint)">Five waves clear a realm — the fifth wakes its guardian. Shatter chests, drink from shrines, and mind the lava.</div>
     </div>
     <button class="btn-d4 primary" id="btnStart">Enter the Realms</button>
     <div class="best-line">Deepest wave <b id="uiBest" class="num">—</b></div>
@@ -428,7 +528,7 @@ body.touch #touchUI { display: block; }
       </svg>
       <div class="hero-name">
         <h1>Vess of the Ossuary</h1>
-        <div class="hero-title" id="stTitle">Wanderer of the Five Realms</div>
+        <div class="hero-title" id="stTitle">Wanderer of the Nine Realms</div>
         <div class="hero-sub num" id="stSub"><b>Wanderer</b> · Level 1 · Ossuary Court · Wave 1</div>
       </div>
       <div class="head-power">
@@ -442,6 +542,22 @@ body.touch #touchUI { display: block; }
       <span class="hint"><b>C</b> Close &nbsp;·&nbsp; <b>B</b> Shop &nbsp;·&nbsp; <b>M</b> Mute</span>
       <span class="num" id="stUptime">Uptime 0:00 · 0 kills</span>
     </footer>
+  </div>
+</div>
+
+<div class="overlay" id="ov-beast">
+  <div class="panel-frame">
+    <div class="beast-head">
+      <div>
+        <div class="ov-title" style="font-size:clamp(18px,2.4vw,26px)">Bestiary</div>
+        <div class="ov-sub" style="margin-top:6px">Ashes of Sanctuary · realm guardians &amp; their courts</div>
+      </div>
+      <button class="btn-d4" id="btnBeastClose">Seal the Tome</button>
+    </div>
+    <div class="beast-wrap">
+      <nav class="beast-nav" id="beastList"></nav>
+      <div class="beast-main" id="beastMain"></div>
+    </div>
   </div>
 </div>
 
@@ -542,7 +658,7 @@ function sfx(type) {
 var state = "menu", resumeState = "play";
 var wave = 0, kills = 0, spawnQueue = [], spawnTimer = 0, interTimer = 0;
 var shake = 0, gameTime = 0, hazardTick = 0;
-var enemies = [], projectiles = [], pickups = [], particles = [], floats = [], decals = [], effects = [], props = [];
+var enemies = [], projectiles = [], pickups = [], particles = [], floats = [], decals = [], effects = [], props = [], zones = [];
 var camSX = 0, camSY = 0;
 var bestWave = +(localStorage.getItem("aos-realms-best") || 0);
 
@@ -558,15 +674,15 @@ function resetPlayer() {
     novaDmg: 26, novaCost: 32, novaR: 150, novaCd: 6, novaT: 0,
     leapCd: 2.2, leapT: 0, quake: 0,
     armor: 0, pickupR: 95, killHeal: 0, critC: 0.15, critM: 1.8,
-    hurtT: 0, invulnT: 0, powerLast: 0
+    hurtT: 0, invulnT: 0, powerLast: 0, slowT: 0, frozenT: 0, silenced: 0
   };
   for (var k in fresh) player[k] = fresh[k];
 }
 function resetGame() {
   resetPlayer();
-  enemies = []; projectiles = []; pickups = []; particles = []; floats = []; decals = []; effects = [];
+  enemies = []; projectiles = []; pickups = []; particles = []; floats = []; decals = []; effects = []; zones = [];
   wave = 0; kills = 0; spawnQueue = []; spawnTimer = 0; shake = 0; gameTime = 0;
-  mapIndex = 0; travelPending = false;
+  mapIndex = 0; travelPending = false; bossRef = null;
   buildMap(false);
 }
 
@@ -575,7 +691,7 @@ var pools = [], vents = [], shrine = null;
 var mapIndex = 0, travelPending = false;
 var MAPS = [
   {
-    id: "ossuary", name: "Ossuary Court", sub: "Bone and stone",
+    id: "ossuary", name: "Ossuary Court", sub: "Bone and stone", boss: "madrega",
     tile: function (gx, gy, h, hv) {
       if (h > 16) return "#242019";
       if (h > 0) return "#201c16";
@@ -603,7 +719,7 @@ var MAPS = [
     }
   },
   {
-    id: "chapel", name: "Crimson Chapel", sub: "Hymns long gone",
+    id: "chapel", name: "Crimson Chapel", sub: "Hymns long gone", boss: "choir",
     tile: function (gx, gy, h, hv) {
       var cy = gy * TILE + TILE / 2 - ARENA / 2;
       if (Math.abs(cy) < 80) return hv > 0.5 ? "#3a1410" : "#33110d";
@@ -635,7 +751,7 @@ var MAPS = [
     }
   },
   {
-    id: "frost", name: "Frostfell Wastes", sub: "Where heroes froze",
+    id: "frost", name: "Frostfell Wastes", sub: "Where heroes froze", boss: "choir",
     tile: function (gx, gy, h, hv) {
       if (h > 10) return "#262c34";
       if (h > 0) return "#20252d";
@@ -668,7 +784,7 @@ var MAPS = [
     }
   },
   {
-    id: "ember", name: "Ember Hollow", sub: "The mountain's heart",
+    id: "ember", name: "Ember Hollow", sub: "The mountain's heart", boss: "vhalgrim",
     tile: function (gx, gy, h, hv) {
       if (h > 14) return "#2a1c14";
       if (h > 0) return "#221710";
@@ -699,7 +815,7 @@ var MAPS = [
     }
   },
   {
-    id: "bog", name: "Mirefen Bog", sub: "It swallows all",
+    id: "bog", name: "Mirefen Bog", sub: "It swallows all", boss: "madrega",
     tile: function (gx, gy, h, hv) {
       if (h > 6) return "#1d2418";
       if (h > 0) return "#181f13";
@@ -730,6 +846,137 @@ var MAPS = [
         elev[gx + gy * GRID_N] = Math.max(elev[gx + gy * GRID_N], 8);
       }
     }
+  },
+  /* ---- shaped realms (from Open Design sanctuary-realms-v2) ---- */
+  {
+    id: "caldera", name: "Ashen Caldera", sub: "A ring around the fire", boss: "vhalgrim",
+    tile: function (gx, gy, h, hv) {
+      if (h > 14) return "#331d0f";
+      if (h > 0) return "#291708";
+      return hv > 0.5 ? "#22120a" : "#1d0f08";
+    },
+    cracks: true, tint: "rgba(255,90,30,0.055)", ambient: "ember",
+    spawn: { x: 560, y: 1700 },
+    inside: function (wx, wy) { return Math.hypot(wx - 1200, wy - 1200) < 1040; },
+    gen: function () {
+      var c = ARENA / 2;
+      pools.push({ x: c, y: c, r: 580 });
+      for (var i = 0; i < 6; i++) {
+        var a = i * TAU / 6 + TAU / 24;
+        props.push({ kind: "obsidian", x: c + Math.cos(a) * 830, y: c + Math.sin(a) * 830, r: 18, solid: true, seed: rand(0, 9) });
+      }
+      for (var v = 0; v < 5; v++) {
+        var av = v * TAU / 5 + 0.9;
+        vents.push({ x: c + Math.cos(av) * 700, y: c + Math.sin(av) * 700, r: 14, t: rand(0, 4.2), erupting: false, tick: 0 });
+      }
+      for (var cr = 0; cr < 4; cr++) {
+        var ac = cr * TAU / 4 + 0.45;
+        props.push({ kind: "crystal", x: c + Math.cos(ac) * 940, y: c + Math.sin(ac) * 940, r: 12, seed: rand(0, 9) });
+      }
+      spawnBreakables("magmarock", 6);
+      spawnChest();
+      spawnShrine(c, c + 880);
+    }
+  },
+  {
+    id: "hexcourt", name: "Hexfound Court", sub: "Six walls, one verdict", boss: "choir",
+    tile: function (gx, gy, h, hv) {
+      if (h > 14) return "#262133";
+      if (h > 0) return "#211d2b";
+      return hv > 0.5 ? "#1b1823" : "#181521";
+    },
+    tint: "rgba(130,100,190,0.05)", ambient: "veil",
+    spawn: { x: 1200, y: 2000 },
+    inside: function (wx, wy) {
+      var dx = wx - 1200, dy = wy - 1200;
+      return Math.abs(dx) <= 866 && Math.abs(dx * 0.5 + dy * 0.866) <= 866 && Math.abs(dx * 0.5 - dy * 0.866) <= 866;
+    },
+    gen: function () {
+      var c = ARENA / 2;
+      elevRaise(c, c, 170, 14);
+      props.push({ kind: "altar", x: c, y: c, r: 44, solid: true });
+      for (var i = 0; i < 6; i++) {
+        var a = i * TAU / 6 + TAU / 12;
+        props.push({ kind: "stone", x: c + Math.cos(a) * 850, y: c + Math.sin(a) * 850, r: 18, hp: 2, solid: true, breakable: true, seed: rand(0, 9), damaged: false });
+      }
+      for (var w2 = 0; w2 < 6; w2++) {
+        var aw = w2 * TAU / 6;
+        props.push({ kind: "wisp", x: c + Math.cos(aw) * 460, y: c + Math.sin(aw) * 460, r: 8, seed: rand(0, 9) });
+      }
+      spawnBreakables("urn", 5);
+      spawnBreakables("bonepile", 3);
+      spawnChest();
+      spawnShrine(c - 700, c - 440);
+    }
+  },
+  {
+    id: "crossing", name: "Tomb Crossing", sub: "Four roads to rest", boss: "madrega",
+    tile: function (gx, gy, h, hv) {
+      if (h > 12) return "#242b28";
+      if (h > 0) return "#1f2522";
+      return hv > 0.5 ? "#1a1f1c" : "#171c19";
+    },
+    tint: "rgba(120,150,160,0.05)", ambient: "mote",
+    spawn: { x: 1200, y: 1760 },
+    inside: function (wx, wy) {
+      var dx = Math.abs(wx - 1200), dy = Math.abs(wy - 1200);
+      return dx <= 980 && dy <= 980 && (dx <= 290 || dy <= 290);
+    },
+    gen: function () {
+      var c = ARENA / 2;
+      elevRaise(c, c, 150, 12);
+      props.push({ kind: "altar", x: c, y: c, r: 44, solid: true });
+      var bc = [[-230, -230], [230, -230], [-230, 230], [230, 230]];
+      for (var b = 0; b < 4; b++) props.push({ kind: "brazier", x: c + bc[b][0], y: c + bc[b][1], r: 13, seed: rand(0, 9) });
+      pools.push({ x: c, y: c - 810, r: 170, water: true });
+      pools.push({ x: c, y: c + 810, r: 170, water: true });
+      pools.push({ x: c - 810, y: c, r: 170, water: true });
+      pools.push({ x: c + 810, y: c, r: 170, water: true });
+      for (var row = 0; row < 3; row++) {
+        var d = 420 + row * 160;
+        props.push({ kind: "stone", x: c - 215, y: c - d, r: 16, hp: 2, solid: true, breakable: true, seed: rand(0, 9), damaged: false });
+        props.push({ kind: "stone", x: c + 215, y: c - d, r: 16, hp: 2, solid: true, breakable: true, seed: rand(0, 9), damaged: false });
+        props.push({ kind: "stone", x: c - 215, y: c + d, r: 16, hp: 2, solid: true, breakable: true, seed: rand(0, 9), damaged: false });
+        props.push({ kind: "stone", x: c + 215, y: c + d, r: 16, hp: 2, solid: true, breakable: true, seed: rand(0, 9), damaged: false });
+        props.push({ kind: "stone", x: c - d, y: c - 215, r: 16, hp: 2, solid: true, breakable: true, seed: rand(0, 9), damaged: false });
+        props.push({ kind: "stone", x: c - d, y: c + 215, r: 16, hp: 2, solid: true, breakable: true, seed: rand(0, 9), damaged: false });
+        props.push({ kind: "stone", x: c + d, y: c - 215, r: 16, hp: 2, solid: true, breakable: true, seed: rand(0, 9), damaged: false });
+        props.push({ kind: "stone", x: c + d, y: c + 215, r: 16, hp: 2, solid: true, breakable: true, seed: rand(0, 9), damaged: false });
+      }
+      spawnBreakables("bonepile", 4);
+      spawnBreakables("urn", 2);
+      spawnChest();
+      spawnShrine(c + 560, c);
+    }
+  },
+  {
+    id: "serpent", name: "The Gloomspan", sub: "A road over nothing", boss: "choir",
+    tile: function (gx, gy, h, hv) {
+      if (h > 10) return "#29231b";
+      if (h > 0) return "#231d15";
+      return hv > 0.5 ? "#1c1710" : "#191409";
+    },
+    tint: "rgba(90,100,140,0.06)", ambient: "ash",
+    spawn: { x: 430, y: 530 },
+    inside: function (wx, wy) {
+      var top = wy >= 360 && wy <= 700 && wx >= 170 && wx <= 2230;
+      var riser = wx >= 1830 && wx <= 2230 && wy >= 360 && wy <= 2040;
+      var bottom = wy >= 1700 && wy <= 2040 && wx >= 170 && wx <= 2230;
+      return top || riser || bottom;
+    },
+    gen: function () {
+      props.push({ kind: "pillar", x: 1900, y: 430, r: 20, solid: true, seed: rand(0, 9) });
+      props.push({ kind: "pillar", x: 2160, y: 430, r: 20, solid: true, seed: rand(0, 9) });
+      props.push({ kind: "pillar", x: 1900, y: 1970, r: 20, solid: true, seed: rand(0, 9) });
+      props.push({ kind: "pillar", x: 2160, y: 1970, r: 20, solid: true, seed: rand(0, 9) });
+      for (var b1 = 0; b1 < 5; b1++) props.push({ kind: "brazier", x: 610 + b1 * 370, y: 530, r: 13, seed: rand(0, 9) });
+      for (var b2 = 0; b2 < 5; b2++) props.push({ kind: "brazier", x: 610 + b2 * 370, y: 1830, r: 13, seed: rand(0, 9) });
+      for (var b3 = 0; b3 < 3; b3++) props.push({ kind: "brazier", x: 2030, y: 850 + b3 * 380, r: 13, seed: rand(0, 9) });
+      spawnBreakables("urn", 5);
+      spawnBreakables("bonepile", 3);
+      spawnChest();
+      spawnShrine(1350, 1870);
+    }
   }
 ];
 function curMap() { return MAPS[mapIndex]; }
@@ -744,6 +991,415 @@ function elevRaise(cx, cy, rad, h) {
     }
   }
 }
+/* ---------- shaped footprints (from Open Design sanctuary-realms-v2) ----------
+   Maps with an inside(wx,wy) test are confined to that shape: movement,
+   spawns, projectiles and the drawn rim all respect it. Maps without one
+   keep the classic square arena.                                   */
+function lavaAt(x, y) {
+  for (var i = 0; i < pools.length; i++) {
+    var p = pools[i];
+    if (!p.water && Math.hypot(x - p.x, y - p.y) < p.r + 30) return true;
+  }
+  return false;
+}
+function confine(ent, ox, oy) {
+  var M = curMap();
+  if (!M.inside) {
+    ent.x = clamp(ent.x, 60, ARENA - 60);
+    ent.y = clamp(ent.y, 60, ARENA - 60);
+    return;
+  }
+  if (!M.inside(ent.x, ent.y)) {
+    if (M.inside(ox, ent.y)) ent.x = ox;
+    else if (M.inside(ent.x, oy)) ent.y = oy;
+    else { ent.x = ox; ent.y = oy; }
+  }
+}
+function sampleInside(pad, minPlayerDist) {
+  var M = curMap();
+  for (var t = 0; t < 80; t++) {
+    var x = rand(pad, ARENA - pad), y = rand(pad, ARENA - pad);
+    if (M.inside && !M.inside(x, y)) continue;
+    if (minPlayerDist && dist2(x, y, player.x, player.y) < minPlayerDist * minPlayerDist) continue;
+    if (lavaAt(x, y)) continue;
+    return { x: x, y: y };
+  }
+  return M.spawn ? { x: M.spawn.x, y: M.spawn.y } : { x: ARENA / 2, y: ARENA / 2 };
+}
+
+/* ---------- ground zones: telegraphs, trails, traps, rings, pulls, beams -----
+   Shared hazard layer for the new monsters and realm-guardian bosses
+   (from Open Design ashes-of-sanctuary-bestiary + sanctuary-realms-v2). */
+function angDiff(a, b) { var d = Math.abs(a - b) % TAU; return d > Math.PI ? TAU - d : d; }
+function pushZone(z) { zones.push(z); return z; }
+function pointInBeam(x, y, z) {
+  var dx = x - z.x, dy = y - z.y;
+  var proj = dx * Math.cos(z.ang) + dy * Math.sin(z.ang);
+  if (proj < 0 || proj > z.len) return false;
+  return Math.abs(-dx * Math.sin(z.ang) + dy * Math.cos(z.ang)) < z.w;
+}
+function beamBlocked(z) {
+  for (var i = 0; i < props.length; i++) {
+    var p = props[i];
+    if (!p.solid || p.dead) continue;
+    if (pointInBeam(p.x, p.y, z) && Math.hypot(p.x - z.x, p.y - z.y) > 50) return true;
+  }
+  return false;
+}
+function updateZones(dt) {
+  for (var i = 0; i < zones.length; i++) {
+    var z = zones[i];
+    z.t += dt;
+    if (z.kind === "tele") {
+      if (z.t >= z.dur) {
+        burstP(z.x, z.y, 8, "rgba(" + z.col + ",1)", 12, 170);
+        shake = Math.min(shake + 0.12, 0.55);
+        sfx(z.snd || "smash");
+        if (!z.noHit && player.invulnT <= 0 && dist2(player.x, player.y, z.x, z.y) < z.r * z.r) {
+          hurtPlayer(z.dmg);
+          if (z.stun) player.frozenT = Math.max(player.frozenT, z.stun);
+        }
+        if (z.burn) for (var b = 0; b < 3; b++) {
+          pushZone({ kind: "trail", x: z.x + rand(-34, 34), y: z.y + rand(-34, 34), r: z.r * 0.45, t: 0, dur: z.burn,
+            dps: Math.max(3, Math.round(z.dmg * 0.25)), col: z.col, tick: 0, label: z.burnLabel || "Seared" });
+        }
+        z.dead = true;
+      }
+    } else if (z.kind === "trail") {
+      z.tick -= dt;
+      if (z.tick <= 0) {
+        z.tick = 0.5;
+        if (!player.air && player.invulnT <= 0 && dist2(player.x, player.y, z.x, z.y) < z.r * z.r) {
+          hurtPlayer(z.dps);
+          addFloat(player.x, player.y, player.z + 30, z.label || "Seared", "rgba(" + z.col + ",1)", 12);
+        }
+      }
+    } else if (z.kind === "trap") {
+      if (z.t >= z.arm && dist2(player.x, player.y, z.x, z.y) < z.r * z.r) {
+        player.frozenT = Math.max(player.frozenT, z.freeze || 1.2);
+        addFloat(player.x, player.y, player.z + 34, "Frozen!", "#9fc7dd", 14);
+        burstP(z.x, z.y, 8, "#9fc7dd", 10, 130);
+        sfx("nova");
+        z.dead = true;
+      } else if (z.t >= z.dur) z.dead = true;
+    } else if (z.kind === "ring") {
+      z.rr = z.r0 + (z.r1 - z.r0) * clamp(z.t / z.dur, 0, 1);
+      if (z.t >= z.delay) {
+        var pd = Math.hypot(player.x - z.x, player.y - z.y);
+        if (!z.hitP && Math.abs(pd - z.rr) < 26 && player.invulnT <= 0) {
+          z.hitP = true;
+          hurtPlayer(z.dmg);
+          if (z.slow) player.slowT = Math.max(player.slowT, z.slow);
+        }
+      }
+      if (z.t >= z.dur + (z.delay || 0)) z.dead = true;
+    } else if (z.kind === "pull") {
+      if (z.t >= (z.delay || 0)) {
+        var dxp = z.x - player.x, dyp = z.y - player.y, dp = Math.hypot(dxp, dyp) || 1;
+        if (dp < z.r) {
+          var angP = Math.atan2(player.y - z.y, player.x - z.x);
+          var inSafe = z.safeAng != null && angDiff(angP, z.safeAng) < z.safeW;
+          if (!inSafe) {
+            var pox = player.x, poy = player.y;
+            player.x += (dxp / dp) * z.force * dt;
+            player.y += (dyp / dp) * z.force * dt;
+            confine(player, pox, poy);
+            z.tick -= dt;
+            if (z.drain && z.tick <= 0 && player.invulnT <= 0) { z.tick = 0.5; hurtPlayer(z.drain); }
+          }
+        }
+      }
+      if (z.t >= z.dur + (z.delay || 0)) z.dead = true;
+    } else if (z.kind === "dome") {
+      if (dist2(player.x, player.y, z.x, z.y) < z.r * z.r) player.slowT = Math.max(player.slowT, 0.2);
+      if (z.t >= z.dur) z.dead = true;
+    } else if (z.kind === "beam") {
+      z.ang += z.spin * dt;
+      z.tick -= dt;
+      if (z.t >= (z.delay || 0) && z.tick <= 0) {
+        z.tick = 0.15;
+        if (player.invulnT <= 0 && pointInBeam(player.x, player.y, z) && !beamBlocked(z)) hurtPlayer(z.dmg);
+      }
+      if (z.t >= z.dur) z.dead = true;
+    }
+  }
+  zones = zones.filter(function (z2) { return !z2.dead; });
+}
+function drawZones() {
+  for (var i = 0; i < zones.length; i++) {
+    var z = zones[i];
+    var sx = projX(z.x, z.y), sy = projY(z.x, z.y, 0);
+    var col = z.col || "200,120,60";
+    if (z.kind === "tele") {
+      var pr = clamp(z.t / z.dur, 0, 1);
+      ctx.strokeStyle = "rgba(" + col + ",0.8)";
+      ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.ellipse(sx, sy, z.r * SQ2, z.r / SQ2, 0, 0, TAU); ctx.stroke();
+      ctx.fillStyle = "rgba(" + col + "," + (0.07 + 0.2 * pr).toFixed(3) + ")";
+      ctx.beginPath(); ctx.ellipse(sx, sy, z.r * SQ2 * pr, (z.r * pr) / SQ2, 0, 0, TAU); ctx.fill();
+    } else if (z.kind === "trail") {
+      var fade = clamp(1 - z.t / z.dur, 0, 1);
+      var ta = (0.15 + 0.07 * Math.sin(gameTime * 6 + i)) * fade;
+      ctx.fillStyle = "rgba(" + col + "," + ta.toFixed(3) + ")";
+      ctx.beginPath(); ctx.ellipse(sx, sy, z.r * SQ2, z.r / SQ2, 0, 0, TAU); ctx.fill();
+    } else if (z.kind === "trap") {
+      var armed = z.t >= z.arm;
+      ctx.save();
+      ctx.translate(sx, sy);
+      ctx.strokeStyle = "rgba(" + col + "," + (armed ? 0.9 : 0.45) + ")";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 6]);
+      ctx.lineDashOffset = -gameTime * 24;
+      ctx.beginPath(); ctx.ellipse(0, 0, z.r * SQ2, z.r / SQ2, 0, 0, TAU); ctx.stroke();
+      ctx.setLineDash([]);
+      if (armed) {
+        ctx.strokeStyle = "rgba(" + col + ",0.7)";
+        ctx.beginPath();
+        ctx.moveTo(-z.r * 0.5 * SQ2, 0); ctx.lineTo(z.r * 0.5 * SQ2, 0);
+        ctx.moveTo(0, -z.r * 0.5 / SQ2); ctx.lineTo(0, z.r * 0.5 / SQ2);
+        ctx.stroke();
+      }
+      ctx.restore();
+    } else if (z.kind === "ring") {
+      if (z.t < (z.delay || 0)) continue;
+      var rrD = z.rr || z.r0;
+      var rrp = clamp(rrD / z.r1, 0, 1);
+      ctx.strokeStyle = "rgba(" + col + "," + (0.85 * (1 - rrp * 0.5)) + ")";
+      ctx.lineWidth = 5;
+      ctx.beginPath(); ctx.ellipse(sx, sy, rrD * SQ2, rrD / SQ2, 0, 0, TAU); ctx.stroke();
+      ctx.strokeStyle = "rgba(" + col + ",0.25)";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.ellipse(sx, sy, rrD * 0.86 * SQ2, rrD * 0.86 / SQ2, 0, 0, TAU); ctx.stroke();
+    } else if (z.kind === "pull") {
+      ctx.save();
+      ctx.translate(sx, sy);
+      if (z.safeAng != null) {
+        ctx.fillStyle = "rgba(120,170,160,0.12)";
+        ctx.beginPath();
+        var a0 = z.safeAng - z.safeW, a1 = z.safeAng + z.safeW;
+        ctx.moveTo(0, 0);
+        for (var sa = a0; sa <= a1; sa += 0.2) ctx.lineTo(Math.cos(sa) * z.r * SQ2 * 1.02, Math.sin(sa) * z.r / SQ2 * 1.02);
+        ctx.closePath(); ctx.fill();
+      }
+      ctx.strokeStyle = "rgba(" + col + ",0.5)";
+      ctx.lineWidth = 2;
+      for (var pr2 = 2; pr2 >= 0; pr2--) {
+        var rr2 = z.r * (0.35 + 0.3 * pr2) * (1 - 0.12 * Math.sin(gameTime * 3 + pr2));
+        ctx.setLineDash([10, 14]);
+        ctx.lineDashOffset = gameTime * 40;
+        ctx.beginPath(); ctx.ellipse(0, 0, rr2 * SQ2, rr2 / SQ2, 0, 0, TAU); ctx.stroke();
+      }
+      ctx.setLineDash([]);
+      ctx.restore();
+    } else if (z.kind === "dome") {
+      var dfade = clamp(1 - z.t / z.dur, 0, 1);
+      ctx.fillStyle = "rgba(" + col + "," + (0.1 * dfade).toFixed(3) + ")";
+      ctx.beginPath(); ctx.ellipse(sx, sy, z.r * SQ2, z.r / SQ2, 0, 0, TAU); ctx.fill();
+      ctx.strokeStyle = "rgba(" + col + ",0.5)";
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.ellipse(sx, sy, z.r * SQ2, z.r / SQ2, 0, 0, TAU); ctx.stroke();
+    } else if (z.kind === "beam") {
+      if (z.t < (z.delay || 0)) continue;
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      var steps = Math.floor(z.len / 60);
+      for (var st = 0; st <= steps; st++) {
+        var bd = st * 60;
+        var bx = z.x + Math.cos(z.ang) * bd, by = z.y + Math.sin(z.ang) * bd;
+        var bsx = projX(bx, by), bsy = projY(bx, by, 0);
+        var g = ctx.createRadialGradient(bsx, bsy, 0, bsx, bsy, z.w * 1.6);
+        g.addColorStop(0, "rgba(" + col + ",0.5)");
+        g.addColorStop(1, "rgba(" + col + ",0)");
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.arc(bsx, bsy, z.w * 1.6, 0, TAU); ctx.fill();
+      }
+      ctx.restore();
+    }
+  }
+}
+
+/* ---------- realm guardians (bosses) ---------- */
+var BOSSES = {
+  vhalgrim: {
+    id: "vhalgrim", name: "Vhalgrim, the Ash Tyrant", short: "Vhalgrim", el: "224,122,58", elName: "Fire",
+    hp: function (w) { return 460 + w * 96; }, dmg: function (w) { return 15 + w * 1.1; },
+    r: 34, spd: 76, phases: [0.5], awakeName: "Crown of Living Ash", ultName: "Ruinator's Dawn",
+    skills: ["Emberfall", "Cinder Wake", "Pyre Chains"]
+  },
+  madrega: {
+    id: "madrega", name: "Madrega, the Marrow Saint", short: "Madrega", el: "216,190,140", elName: "Bone",
+    hp: function (w) { return 390 + w * 82; }, dmg: function (w) { return 13 + w * 0.9; },
+    r: 30, spd: 88, phases: [0.4], awakeName: "The Reliquary Assumed", ultName: "Nave of a Thousand Ribs",
+    skills: ["Reliquary Spikes", "Choir of Hands", "Ossuary Mend"]
+  },
+  choir: {
+    id: "choir", name: "The Unheard Choir", short: "The Unheard Choir", el: "170,120,220", elName: "Whisper",
+    hp: function (w) { return 430 + w * 90; }, dmg: function (w) { return 12 + w * 0.9; },
+    r: 32, spd: 68, phases: [0.6, 0.3], awakeName: "The Note Made Flesh", ultName: "Dirge",
+    skills: ["Silent Verse", "Hollowing Hymn", "Antiphon"]
+  }
+};
+var bossRef = null;
+function spawnBoss(id) {
+  var B = BOSSES[id];
+  var p = sampleInside(200, 620);
+  if (dist2(p.x, p.y, player.x, player.y) < 400 * 400) {
+    var p2 = sampleInside(240, 0);
+    p = p2;
+  }
+  var e = {
+    type: "boss", bid: id, x: p.x, y: p.y, z: groundZ(p.x, p.y), r: B.r,
+    hp: B.hp(wave), maxhp: B.hp(wave), spd: B.spd, dmg: B.dmg(wave),
+    xp: 200 + wave * 24, gold: [26 + wave, 46 + wave * 2], atkCd: 1.7, atkT: 2.4,
+    hitT: 0, kx: 0, ky: 0, seed: rand(0, TAU), slowT: 0, range: 0, wind: 0, dashT: 0, dashA: 0, sumT: 0,
+    phase: 0, awake: false, castT: 3, castIdx: 0, ultQueued: false, antiphon: 0, channel: 0, mendTick: 0,
+    stunT: 0, trailT: 0, rush: 0, rushCd: 0, titheCd: 0, titheTick: 0, hurlCd: 0,
+    guard: 0, guardCd: 0, guardHits: 0, snareCd: 0, blinkCd: 0, rare: false, ultT: 0
+  };
+  enemies.push(e);
+  bossRef = e;
+  effects.push({ kind: "portal", x: e.x, y: e.y, z: 0, t: 0, dur: 1.2, maxR: e.r + 70 });
+  banner(B.short.toUpperCase());
+  addFloat(e.x, e.y, 60, B.name, "#e8dcc0", 17);
+  shake = Math.min(shake + 0.4, 0.7);
+  sfx("death");
+  return e;
+}
+function castBossSkill(e) {
+  var B = BOSSES[e.bid];
+  var w = wave, dmg = e.dmg;
+  if (e.ultQueued) {
+    e.ultQueued = false;
+    e.castT = e.awake ? 3.2 : 4.2;
+    banner(B.ultName.toUpperCase());
+    addFloat(e.x, e.y, 50, B.ultName, "rgba(" + B.el + ",1)", 16);
+    sfx("death");
+    if (e.bid === "vhalgrim") {
+      pushZone({ kind: "beam", x: e.x, y: e.y, ang: Math.atan2(player.y - e.y, player.x - e.x),
+        spin: 0.42, len: 2100, w: 46, dmg: Math.round(dmg * 1.15), col: B.el, t: 0, dur: 5, delay: 1, tick: 0 });
+    } else if (e.bid === "madrega") {
+      for (var r0 = 0; r0 < 3; r0++) pushZone({ kind: "ring", x: e.x, y: e.y, r0: 140, r1: 940,
+        dmg: Math.round(dmg * 1.25), col: B.el, t: 0, dur: 2.6, delay: r0 * 0.9, hitP: false });
+    } else {
+      pushZone({ kind: "pull", x: e.x, y: e.y, r: 1300, force: 150, drain: Math.round(dmg * 0.5),
+        col: B.el, t: 0, dur: 4, safeAng: rand(0, TAU), safeW: 0.55, tick: 0 });
+    }
+    return;
+  }
+  var sk = e.castIdx % 3;
+  e.castIdx++;
+  e.castT = (e.awake ? 3.1 : 4.1) + rand(0, 0.7);
+  if (e.bid === "vhalgrim") {
+    if (sk === 0) { /* Emberfall — three cinder circles that burn on */
+      for (var c = 0; c < 3; c++) pushZone({ kind: "tele", x: player.x + rand(-190, 190), y: player.y + rand(-190, 190),
+        r: 115, dmg: Math.round(dmg * 1.5), col: B.el, t: 0, dur: 1.7, burn: e.awake ? 9 : 5, burnLabel: "Burning", snd: "fire" });
+    } else if (sk === 1) { /* Cinder Wake — fissure line toward the hero */
+      var ca = Math.atan2(player.y - e.y, player.x - e.x);
+      for (var f = 1; f <= 4; f++) pushZone({ kind: "tele", x: e.x + Math.cos(ca) * f * 150, y: e.y + Math.sin(ca) * f * 150,
+        r: 92, dmg: Math.round(dmg * 1.35), col: B.el, t: 0, dur: 1 + f * 0.14, stun: 0.5, snd: "land" });
+    } else { /* Pyre Chains — drag the hero to the pyre */
+      pushZone({ kind: "pull", x: e.x, y: e.y, r: 760, force: 120, drain: Math.round(dmg * 0.4),
+        col: B.el, t: 0, dur: 3.5, tick: 0 });
+      addFloat(e.x, e.y, 50, "Pyre Chains", "rgba(" + B.el + ",1)", 15);
+    }
+  } else if (e.bid === "madrega") {
+    if (sk === 0) { /* Reliquary Spikes — lanes of bone */
+      var lane = Math.random() < 0.5 ? 0 : Math.PI / 2;
+      for (var l = -3; l <= 3; l++) pushZone({ kind: "tele",
+        x: player.x + Math.cos(lane) * l * 115, y: player.y + Math.sin(lane) * l * 115,
+        r: 56, dmg: Math.round(dmg * 1.35), col: B.el, t: 0, dur: 1.25, snd: "smash" });
+    } else if (sk === 1) { /* Choir of Hands — grasping arc that drags in */
+      var ha = Math.atan2(player.y - e.y, player.x - e.x);
+      for (var h = -2; h <= 2; h++) pushZone({ kind: "tele",
+        x: e.x + Math.cos(ha + h * 0.5) * 280, y: e.y + Math.sin(ha + h * 0.5) * 280,
+        r: 72, dmg: Math.round(dmg * 1.1), col: B.el, t: 0, dur: 1.45, snd: "hit" });
+      pushZone({ kind: "pull", x: e.x, y: e.y, r: 520, force: 95, col: B.el, t: 0, dur: 2.4, tick: 0 });
+    } else { /* Ossuary Mend — interruptible heal */
+      e.channel = 3;
+      e.mendTick = 0;
+      addFloat(e.x, e.y, 50, "Ossuary Mend — strike her!", C.gold, 15);
+    }
+  } else {
+    if (sk === 0) { /* Silent Verse — hush: no essence, the world dims */
+      player.silenced = 6;
+      addFloat(player.x, player.y, player.z + 44, "Silenced", "#b08ad8", 15);
+      sfx("nova");
+    } else if (sk === 1) { /* Hollowing Hymn — stripping rings */
+      for (var hg = 0; hg < 4; hg++) pushZone({ kind: "ring", x: e.x, y: e.y, r0: 110, r1: 820,
+        dmg: Math.round(dmg * 0.9), slow: 1.6, col: B.el, t: 0, dur: 2.4, delay: hg * 0.55, hitP: false });
+    } else { /* Antiphon — mocks the next spell cast at it */
+      e.antiphon = 6;
+      addFloat(e.x, e.y, 50, "Antiphon — it listens…", "#b08ad8", 15);
+    }
+  }
+}
+function updateBossAI(e, dt, d, dx, dy, slowMul, airborne) {
+  var B = BOSSES[e.bid];
+  e.stunT = Math.max(0, e.stunT - dt);
+  e.antiphon = Math.max(0, e.antiphon - dt);
+  /* phase shift — the super appearance */
+  if (e.phase < B.phases.length && e.hp / e.maxhp <= B.phases[e.phase]) {
+    e.phase++;
+    e.awake = true;
+    e.spd *= 1.1;
+    e.ultQueued = true;
+    e.castT = 1.4;
+    banner(B.awakeName.toUpperCase());
+    addFloat(e.x, e.y, 60, B.awakeName, "rgba(" + B.el + ",1)", 16);
+    burstP(e.x, e.y, 10, "rgba(" + B.el + ",1)", 30, 240);
+    effects.push({ kind: "nova", x: e.x, y: e.y, z: 10, t: 0, dur: 0.9, maxR: 260 });
+    shake = Math.min(shake + 0.5, 0.8);
+    sfx("level");
+  }
+  if (e.channel > 0) { /* Ossuary Mend */
+    e.channel -= dt;
+    e.mendTick -= dt;
+    if (e.mendTick <= 0) {
+      e.mendTick = 0.5;
+      e.hp = Math.min(e.maxhp, e.hp + e.maxhp * 0.025);
+      addFloat(e.x, e.y, e.z + e.r + 22, "+", "#8fb35a", 15);
+      burstP(e.x, e.y, e.z + 30, "#c8bda0", 4, 70);
+    }
+    return;
+  }
+  if (e.stunT > 0) return;
+  /* keep mid-range, drift after the hero */
+  var want = 240;
+  if (d > want + 60) moveSlide(e, (dx / d) * e.spd * slowMul * dt, (dy / d) * e.spd * slowMul * dt);
+  else if (d < want - 90) moveSlide(e, -(dx / d) * e.spd * 0.6 * slowMul * dt, -(dy / d) * e.spd * 0.6 * slowMul * dt);
+  if (d < e.r + player.r + 6 && e.atkT <= 0 && player.invulnT <= 0 && !airborne) { /* a lazy backhand */
+    e.atkT = e.atkCd;
+    hurtPlayer(Math.round(e.dmg * 0.8));
+  }
+  e.castT -= dt;
+  if (e.castT <= 0) castBossSkill(e);
+}
+
+/* ---------- rare-elite "super appearance" ultimates for the new monsters ---------- */
+function castRareUlt(e) {
+  var dmg = e.dmg;
+  if (e.type === "zealot") { /* Exsanguinating Scream */
+    pushZone({ kind: "pull", x: e.x, y: e.y, r: 430, force: 140, drain: Math.max(3, Math.round(dmg * 0.4)),
+      col: "168,58,40", t: 0, dur: 3, tick: 0 });
+    addFloat(e.x, e.y, e.z + e.r + 40, "Exsanguinating Scream", "#c6523c", 14);
+    sfx("death");
+  } else if (e.type === "brute") { /* Barrow Collapse */
+    e.wind = 0.9;
+    e.ultSlam = true;
+    addFloat(e.x, e.y, e.z + e.r + 40, "Barrow Collapse", "#8fb35a", 14);
+  } else { /* Lantern of the Quiet Snow */
+    pushZone({ kind: "dome", x: e.x, y: e.y, r: 300, col: "159,199,221", t: 0, dur: 5 });
+    for (var s = 0; s < 3; s++) {
+      var a = e.seed + s * TAU / 3;
+      projectiles.push({ x: e.x + Math.cos(a) * 20, y: e.y + Math.sin(a) * 20, z: e.z + 16,
+        vx: Math.cos(a) * 240, vy: Math.sin(a) * 240, r: 7, life: 3, hostile: true,
+        dmg: Math.round(dmg * 0.8), kind: "frost", home: true, slow: 1.2 });
+    }
+    addFloat(e.x, e.y, e.z + e.r + 40, "Lantern of the Quiet Snow", "#9fc7dd", 14);
+    sfx("nova");
+  }
+}
+
 var BREAK = {
   urn:       { hp: 1, coins: [3, 8],  debris: "#8f8672" },
   bonepile:  { hp: 1, coins: [2, 5],  debris: "#c8bda0" },
@@ -755,18 +1411,33 @@ var BREAK = {
   chest:     { hp: 2, coins: [12, 22], debris: "#d4a94f" }
 };
 function spawnBreakables(kind, n) {
+  var M = curMap();
   for (var i = 0; i < n; i++) {
-    var tries = 0, x, y;
-    do {
-      x = rand(200, ARENA - 200); y = rand(200, ARENA - 200);
-      tries++;
-    } while (dist2(x, y, player.x, player.y) < 280 * 280 && tries < 25);
+    var x, y;
+    if (M.inside) {
+      var p = sampleInside(140, 240);
+      x = p.x; y = p.y;
+    } else {
+      var tries = 0;
+      do {
+        x = rand(200, ARENA - 200); y = rand(200, ARENA - 200);
+        tries++;
+      } while (dist2(x, y, player.x, player.y) < 280 * 280 && tries < 25);
+    }
     props.push({ kind: kind, x: x, y: y, r: kind === "chest" ? 16 : 12, hp: BREAK[kind].hp, seed: rand(0, 9), breakable: true, damaged: false });
   }
 }
 function spawnChest() {
-  var a = rand(0, TAU);
-  props.push({ kind: "chest", x: ARENA / 2 + Math.cos(a) * 700, y: ARENA / 2 + Math.sin(a) * 700, r: 16, hp: 2, seed: rand(0, 9), breakable: true, damaged: false });
+  var M = curMap(), x, y;
+  if (M.inside) {
+    var p = sampleInside(220, 320);
+    x = p.x; y = p.y;
+  } else {
+    var a = rand(0, TAU);
+    x = ARENA / 2 + Math.cos(a) * 700;
+    y = ARENA / 2 + Math.sin(a) * 700;
+  }
+  props.push({ kind: "chest", x: x, y: y, r: 16, hp: 2, seed: rand(0, 9), breakable: true, damaged: false });
 }
 function spawnShrine(x, y) { shrine = { x: clamp(x, 140, ARENA - 140), y: clamp(y, 140, ARENA - 140), used: false }; }
 function buildMap(keepPlayer) {
@@ -774,9 +1445,12 @@ function buildMap(keepPlayer) {
   elev = new Float32Array(GRID_N * GRID_N);
   curMap().gen();
   if (!keepPlayer) {
-    /* arrive in the middle of the realm; the tiny offset keeps the solid-prop
-       push-out working when the map has a prop dead-center (altar, reliquary) */
-    player.x = ARENA / 2 + 0.5; player.y = ARENA / 2 + 0.5;
+    /* arrive at the realm's spawn point (shaped maps), else the middle;
+       the tiny offset keeps the solid-prop push-out working when the map
+       has a prop dead-center (altar, reliquary) */
+    var sp = curMap().spawn;
+    player.x = sp ? sp.x : ARENA / 2 + 0.5;
+    player.y = sp ? sp.y : ARENA / 2 + 0.5;
     player.z = 0; player.air = false;
     collideSolids(player);
   }
@@ -853,6 +1527,10 @@ window.addEventListener("keydown", function (e) {
     if (k === "c" || k === "escape" || k === "enter") closeStats();
     return;
   }
+  if (state === "beast") {
+    if (k === "b" || k === "escape") closeBestiary();
+    return;
+  }
   if ((k === "escape" || k === "p") && (state === "play" || state === "intermission")) { pauseGame(); return; }
   if ((k === "escape" || k === "p") && state === "pause") { resumeGame(); return; }
   if (k === "1" || k === "2") pointerIsMouse = false;
@@ -862,12 +1540,33 @@ window.addEventListener("keydown", function (e) {
   else if (k === "4") usePotion();
   else if (k === "m") muted = !muted;
   else if (k === "`") document.getElementById("dbg").classList.toggle("hidden");
+  else if (k === "]" && !document.getElementById("dbg").classList.contains("hidden") && state === "play") {
+    mapIndex = (mapIndex + 1) % MAPS.length;
+    pickups = [];
+    buildMap(false);
+    banner(curMap().name);
+    document.getElementById("uiWaveTitle").textContent = curMap().name + " — Wave " + wave;
+  }
+  else if (k === "[" && !document.getElementById("dbg").classList.contains("hidden") && state === "play") {
+    mapIndex = (mapIndex + MAPS.length - 1) % MAPS.length;
+    pickups = [];
+    buildMap(false);
+    banner(curMap().name);
+    document.getElementById("uiWaveTitle").textContent = curMap().name + " — Wave " + wave;
+  }
+  else if (k === "n" && !document.getElementById("dbg").classList.contains("hidden") && (state === "play" || state === "intermission")) {
+    document.getElementById("interBar").classList.add("hidden");
+    travelPending = false;
+    startWave(wave + 1);
+    state = "play";
+  }
   else if (k === "c") {
     if (state === "play" || state === "intermission") openStats();
     else if (state === "stats") closeStats();
   } else if (k === "b") {
     if (state === "intermission") openShop();
     else if (state === "shop") closeShop();
+    else if (state === "play") openBestiary();
   } else if (k === "escape" && state === "shop") closeShop();
 });
 window.addEventListener("keyup", function (e) { keys[e.key.toLowerCase()] = false; });
@@ -1034,11 +1733,26 @@ function clangProp(p) {
   sfx("hit");
 }
 function damageEnemy(e, roll, dir) {
-  e.hp -= roll.v; e.hitT = 0.12;
-  var kb = 210 * player.knockPow;
+  var v = roll.v;
+  if (e.guard > 0) { /* Hide of Graves: shed damage, crack the shell */
+    v = Math.max(1, Math.round(v * 0.4));
+    e.guardHits++;
+    if (e.guardHits >= 5) {
+      e.guard = 0; e.stunT = 2;
+      addFloat(e.x, e.y, e.z + e.r + 26, "Shattered!", C.bone, 14);
+    }
+  }
+  if (e.rush > 0) v = Math.round(v * 1.15); /* Flagellant's Rush: frenzied, but exposed */
+  e.hp -= v; e.hitT = 0.12;
+  var kb = 210 * player.knockPow * (e.type === "boss" ? 0.12 : 1);
   e.kx += Math.cos(dir) * kb; e.ky += Math.sin(dir) * kb;
-  addFloat(e.x + rand(-6, 6), e.y, e.z + e.r + 16, roll.v, roll.crit ? "#e8a04f" : C.bone, roll.crit ? 18 : 14);
+  addFloat(e.x + rand(-6, 6), e.y, e.z + e.r + 16, v, roll.crit ? "#e8a04f" : C.bone, roll.crit ? 18 : 14);
   burstP(e.x, e.y, e.z + 8, "#7d2c1c", 4, 120);
+  if (e.channel > 0) { /* channels are broken by a hit */
+    e.channel = 0;
+    e.stunT = e.type === "boss" ? 1.6 : 2;
+    addFloat(e.x, e.y, e.z + e.r + 30, "Interrupted!", C.gold, 15);
+  }
   if (e.hp <= 0) killEnemy(e); else sfx("hit");
 }
 function killEnemy(e) {
@@ -1053,6 +1767,21 @@ function killEnemy(e) {
   if (Math.random() < 0.045) pickups.push({ kind: "potion", x: e.x, y: e.y, vx: 0, vy: 0, bob: rand(0, TAU) });
   if (player.killHeal > 0) player.hp = Math.min(player.maxhp, player.hp + player.killHeal);
   addFloat(e.x, e.y, e.z + e.r + 30, "+" + e.xp + " xp", C.ess, 12);
+  if (e.type === "boss") { /* the guardian falls — the realm opens */
+    var B = BOSSES[e.bid];
+    bossRef = null;
+    banner(B.short.toUpperCase() + " FALLS");
+    shake = Math.min(shake + 0.6, 0.8);
+    sfx("level");
+    for (var sh = 0; sh < 5; sh++) pickups.push({ kind: "shard", x: e.x + rand(-30, 30), y: e.y + rand(-30, 30), vx: rand(-60, 60), vy: rand(-60, 60), bob: rand(0, TAU) });
+    pickups.push({ kind: "potion", x: e.x + rand(-20, 20), y: e.y + rand(-20, 20), vx: 0, vy: 0, bob: rand(0, TAU) });
+    effects.push({ kind: "nova", x: e.x, y: e.y, z: 10, t: 0, dur: 1.1, maxR: 320 });
+    burstP(e.x, e.y, e.z + 20, "rgba(" + B.el + ",1)", 40, 280);
+  }
+  if (e.rare) {
+    burstP(e.x, e.y, e.z + 20, "#e8a04f", 20, 220);
+    for (var rs = 0; rs < 2; rs++) pickups.push({ kind: "shard", x: e.x + rand(-20, 20), y: e.y + rand(-20, 20), vx: rand(-50, 50), vy: rand(-50, 50), bob: rand(0, TAU) });
+  }
   gainXP(e.xp);
 }
 function hurtPlayer(raw) {
@@ -1076,14 +1805,16 @@ function castFire() {
   });
   sfx("fire");
 }
-function fireEnemyShot(e) {
+function fireEnemyShot(e, o) {
+  o = o || {};
   var a = Math.atan2(player.y - e.y, player.x - e.x);
   projectiles.push({
     x: e.x + Math.cos(a) * (e.r + 6), y: e.y + Math.sin(a) * (e.r + 6), z: e.z + 16,
-    vx: Math.cos(a) * 265, vy: Math.sin(a) * 265,
-    r: 7, life: 2, hostile: true, dmg: e.dmg
+    vx: Math.cos(a) * (o.spd || 265), vy: Math.sin(a) * (o.spd || 265),
+    r: o.r || 7, life: o.life || 2, hostile: true,
+    dmg: Math.round(e.dmg * (o.dmgMul || 1)), kind: o.kind || null, slow: o.slow || 0, home: o.home || false
   });
-  sfx("fire");
+  sfx(o.kind === "frost" ? "nova" : "fire");
 }
 function castNova() {
   if (state !== "play" && state !== "intermission") return;
@@ -1319,45 +2050,71 @@ var ETYPES = {
   ghoul: { r: 17, hp: function (w) { return 70 + w * 14; }, spd: 70, dmg: 17, xp: 26, gold: [5, 9], atkCd: 1.6 },
   cultist: { r: 12, hp: function (w) { return 24 + w * 5; }, spd: 78, dmg: 9, xp: 15, gold: [2, 6], atkCd: 2.4, range: 400 },
   charger: { r: 15, hp: function (w) { return 42 + w * 9; }, spd: 62, dmg: 13, xp: 20, gold: [3, 7], atkCd: 2.6 },
-  elite: { r: 15, hp: function (w) { return (30 + w * 8) * 4; }, spd: 85, dmg: 16, xp: 70, gold: [18, 30], atkCd: 1.2 }
+  elite: { r: 15, hp: function (w) { return (30 + w * 8) * 4; }, spd: 85, dmg: 16, xp: 70, gold: [18, 30], atkCd: 1.2 },
+  zealot: { r: 13, hp: function (w) { return 26 + w * 7; }, spd: 128, dmg: 12, xp: 18, gold: [3, 7], atkCd: 1.0 },
+  brute: { r: 20, hp: function (w) { return 90 + w * 18; }, spd: 55, dmg: 20, xp: 34, gold: [7, 12], atkCd: 1.8 },
+  wisp: { r: 10, hp: function (w) { return 14 + w * 3; }, spd: 92, dmg: 8, xp: 14, gold: [2, 5], atkCd: 2.2, range: 380 }
 };
 function buildWave(n) {
-  var q = [], count = Math.min(6 + n * 2, 34);
+  var q = [], bossWave = (n % 5 === 0 && curMap().boss);
+  var count = bossWave ? Math.min(4 + Math.floor(n / 5) * 2, 14) : Math.min(6 + n * 2, 34);
   for (var i = 0; i < count; i++) {
     var t = "imp", r = Math.random();
-    if (n >= 2 && r < 0.45) t = "skeleton";
-    if (n >= 4 && r < 0.2) t = "ghoul";
-    if (n >= 3 && r >= 0.45 && r < 0.61) t = "cultist";
-    if (n >= 5 && r >= 0.61 && r < 0.73) t = "charger";
+    if (n >= 2 && r < 0.4) t = "skeleton";
+    if (n >= 4 && r < 0.18) t = "ghoul";
+    if (n >= 3 && r >= 0.4 && r < 0.55) t = "cultist";
+    if (n >= 5 && r >= 0.55 && r < 0.66) t = "charger";
+    if (n >= 3 && r >= 0.66 && r < 0.76) t = "wisp";
+    if (n >= 4 && r >= 0.76 && r < 0.85) t = "zealot";
+    if (n >= 6 && r >= 0.85) t = "brute";
     q.push(t);
   }
-  if (n % 3 === 0) q.push("elite");
+  if (bossWave) q.push("boss");
+  else if (n % 3 === 0) q.push("elite");
   return q;
 }
 function spawnEnemy(type, nx, ny) {
+  if (type === "boss") return spawnBoss(curMap().boss);
   var T = ETYPES[type], x = nx, y = ny, tries = 0;
+  var M = curMap();
   if (x == null) {
-    do {
-      var a = rand(0, TAU), rad = rand(ARENA * 0.42, ARENA * 0.47);
-      x = ARENA / 2 + Math.cos(a) * rad;
-      y = ARENA / 2 + Math.sin(a) * rad;
-      tries++;
-    } while (dist2(x, y, player.x, player.y) < 520 * 520 && tries < 20);
+    if (M.inside) {
+      do {
+        x = rand(200, ARENA - 200); y = rand(200, ARENA - 200);
+        tries++;
+      } while (!(M.inside(x, y) && !lavaAt(x, y) && dist2(x, y, player.x, player.y) > 460 * 460) && tries < 50);
+      if (!M.inside(x, y)) { var f = sampleInside(160, 0); x = f.x; y = f.y; }
+    } else {
+      do {
+        var a = rand(0, TAU), rad = rand(ARENA * 0.42, ARENA * 0.47);
+        x = ARENA / 2 + Math.cos(a) * rad;
+        y = ARENA / 2 + Math.sin(a) * rad;
+        tries++;
+      } while (dist2(x, y, player.x, player.y) < 520 * 520 && tries < 20);
+    }
   }
+  /* rare-elite conversion: the monsters' "super appearance" (from the bestiary notes) */
+  var rare = (type === "zealot" || type === "brute" || type === "wisp") && wave >= 7 && Math.random() < 0.1;
+  var hp = T.hp(wave) * (rare ? 2.5 : 1);
   enemies.push({
-    type: type, x: x, y: y, z: groundZ(x, y), r: T.r, hp: T.hp(wave), maxhp: T.hp(wave),
+    type: type, x: x, y: y, z: groundZ(x, y), r: T.r * (rare ? 1.25 : 1), hp: hp, maxhp: hp,
     spd: T.spd * rand(0.9, 1.1), dmg: T.dmg + wave * 0.6, xp: T.xp + wave,
     gold: T.gold, atkCd: T.atkCd, atkT: rand(0, T.atkCd), hitT: 0, kx: 0, ky: 0, seed: rand(0, TAU),
-    slowT: 0, range: T.range || 0, wind: 0, dashT: 0, dashA: 0, sumT: type === "elite" ? 5 : 0
+    slowT: 0, range: T.range || 0, wind: 0, dashT: 0, dashA: 0, sumT: type === "elite" ? 5 : 0,
+    rare: rare, ultT: rare ? 8 : 0, stunT: 0, channel: 0, titheTick: 0, trailT: 0,
+    rush: 0, rushCd: 0, titheCd: 0, hurlCd: 0, guard: 0, guardCd: 0, guardHits: 0,
+    snareCd: 0, blinkCd: 0, ultSlam: false
   });
-  effects.push({ kind: "portal", x: x, y: y, z: 0, t: 0, dur: 0.6, maxR: T.r + 22 });
+  effects.push({ kind: "portal", x: x, y: y, z: 0, t: 0, dur: 0.6, maxR: T.r + (rare ? 34 : 22) });
+  if (rare) addFloat(x, y, 40, "Awakened", "#e8a04f", 14);
 }
 function startWave(n) {
   wave = n;
   spawnQueue = buildWave(n);
   spawnTimer = 1.2;
-  banner("Wave " + n);
-  document.getElementById("uiWaveTitle").textContent = curMap().name + " — Wave " + n;
+  var bossWave = spawnQueue.indexOf("boss") >= 0;
+  if (!bossWave) banner("Wave " + n);
+  document.getElementById("uiWaveTitle").textContent = curMap().name + (bossWave ? " — Guardian" : " — Wave " + n);
 }
 function waveCleared() {
   state = "intermission";
@@ -1647,7 +2404,10 @@ function update(dt) {
   player.leapT = Math.max(0, player.leapT - dt);
   player.hurtT = Math.max(0, player.hurtT - dt);
   player.invulnT = Math.max(0, player.invulnT - dt);
-  player.ess = Math.min(player.maxess, player.ess + player.essRegen * dt);
+  player.slowT = Math.max(0, player.slowT - dt);
+  player.frozenT = Math.max(0, player.frozenT - dt);
+  player.silenced = Math.max(0, player.silenced - dt);
+  if (player.silenced <= 0) player.ess = Math.min(player.maxess, player.ess + player.essRegen * dt);
   shake = Math.max(0, shake - dt * 3);
 
   /* aim (plane angle) */
@@ -1663,18 +2423,23 @@ function update(dt) {
   /* movement — input is screen-space, rotated into plane so W/A/S/D match the screen */
   player.slowed = false;
   updateHazards(dt);
+  updateZones(dt);
   var mx = 0, my = 0;
-  if (keys.w || keys.arrowup) my -= 1;
-  if (keys.s || keys.arrowdown) my += 1;
-  if (keys.a || keys.arrowleft) mx -= 1;
-  if (keys.d || keys.arrowright) mx += 1;
-  if (joy.active) { mx += joy.x; my += joy.y; }
+  if (player.frozenT <= 0) {
+    if (keys.w || keys.arrowup) my -= 1;
+    if (keys.s || keys.arrowdown) my += 1;
+    if (keys.a || keys.arrowleft) mx -= 1;
+    if (keys.d || keys.arrowright) mx += 1;
+    if (joy.active) { mx += joy.x; my += joy.y; }
+  }
   var ml = Math.hypot(mx, my);
   if (ml > 1) { mx /= ml; my /= ml; }
   var pmx = (mx + 2 * my) / 2, pmy = (2 * my - mx) / 2;
-  var pspd = player.speed * (player.slowed ? 0.6 : 1);
+  var pspd = player.speed * ((player.slowed || player.slowT > 0) ? 0.6 : 1);
+  var pox = player.x, poy = player.y;
   player.x = clamp(player.x + pmx * pspd * dt, 60, ARENA - 60);
   player.y = clamp(player.y + pmy * pspd * dt, 60, ARENA - 60);
+  confine(player, pox, poy);
   collideSolids(player);
 
   /* vertical: leap physics + terrain following */
@@ -1692,6 +2457,7 @@ function update(dt) {
   /* enemies */
   for (var i = 0; i < enemies.length; i++) {
     var e = enemies[i];
+    var eox = e.x, eoy = e.y;
     e.hitT = Math.max(0, e.hitT - dt);
     e.atkT = Math.max(0, e.atkT - dt);
     e.slowT = Math.max(0, e.slowT - dt);
@@ -1720,7 +2486,140 @@ function update(dt) {
         addFloat(e.x, e.y, e.z + e.r + 40, "Rise!", "#c6523c", 14);
       }
     }
-    if (e.type === "charger") {
+    if (e.type === "boss") {
+      updateBossAI(e, dt, d, dx, dy, slowMul, airborne);
+    } else if (e.type === "zealot") {
+      e.stunT = Math.max(0, e.stunT - dt);
+      e.rushCd -= dt; e.titheCd -= dt; e.ultT -= dt;
+      if (e.rush > 0) e.rush -= dt;
+      if (e.rare && e.ultT <= 0) { e.ultT = 16; castRareUlt(e); }
+      if (e.stunT > 0) {
+        /* kneeling, dazed */
+      } else if (e.channel > 0) { /* Blood Tithe */
+        e.channel -= dt;
+        if (d < 300) {
+          e.titheTick -= dt;
+          if (e.titheTick <= 0) {
+            e.titheTick = 0.5;
+            hurtPlayer(Math.max(2, Math.round(e.dmg * 0.35)));
+            e.hp = Math.min(e.maxhp, e.hp + e.maxhp * 0.02);
+          }
+        }
+        if (e.channel <= 0) e.atkT = e.atkCd * 2;
+      } else if (e.dashT > 0) { /* Crimson Arc */
+        e.dashT -= dt;
+        moveSlide(e, Math.cos(e.dashA) * 430 * slowMul * dt, Math.sin(e.dashA) * 430 * slowMul * dt);
+        e.trailT -= dt;
+        if (e.trailT <= 0) {
+          e.trailT = 0.07;
+          pushZone({ kind: "trail", x: e.x, y: e.y, r: 26, t: 0, dur: 5,
+            dps: Math.max(2, Math.round(e.dmg * 0.2)), col: "168,58,40", tick: 0, label: "Bleeding" });
+        }
+        if (d < e.r + player.r + 4 && player.invulnT <= 0 && !airborne) {
+          hurtPlayer(Math.round(e.dmg * 1.2));
+          e.dashT = 0;
+          e.atkT = e.atkCd * 1.5;
+        }
+      } else if (e.wind > 0) {
+        e.wind -= dt;
+        if (e.wind <= 0) { e.dashT = 0.34; e.trailT = 0; }
+      } else {
+        if (d > e.r + player.r + 2) {
+          var za = Math.atan2(dy, dx) + wob * 0.4;
+          moveSlide(e, Math.cos(za) * e.spd * slowMul * dt, Math.sin(za) * e.spd * slowMul * dt);
+        } else if (e.atkT <= 0 && player.invulnT <= 0 && !airborne) {
+          e.atkT = e.atkCd * (e.rush > 0 ? 0.6 : 1);
+          hurtPlayer(e.dmg);
+        }
+        if (d > 180 && d < 420 && e.atkT <= 0) { e.wind = 0.4; e.dashA = Math.atan2(dy, dx); }
+        if (e.hp < e.maxhp * 0.5 && e.titheCd <= 0 && d < 280) {
+          e.titheCd = 18; e.channel = 3; e.titheTick = 0.4;
+          addFloat(e.x, e.y, e.z + e.r + 30, "Blood Tithe — strike it!", "#c6523c", 13);
+        }
+        if (e.rushCd <= 0 && e.hp < e.maxhp * 0.7) {
+          e.rushCd = 24; e.rush = 6;
+          addFloat(e.x, e.y, e.z + e.r + 30, "Flagellant's Rush", "#e06550", 13);
+        }
+      }
+    } else if (e.type === "brute") {
+      e.stunT = Math.max(0, e.stunT - dt);
+      e.hurlCd -= dt; e.guardCd -= dt; e.ultT -= dt;
+      if (e.rare && e.ultT <= 0) { e.ultT = 16; castRareUlt(e); }
+      if (e.guard > 0) e.guard -= dt;
+      if (e.stunT > 0 || e.guard > 0) {
+        /* tucked into its mass — rooted */
+      } else if (e.wind > 0) { /* Bone Toll / Barrow Collapse windup */
+        e.wind -= dt;
+        if (e.wind <= 0) {
+          var slamR = e.ultSlam ? 220 : 170;
+          effects.push({ kind: "shock", x: e.x, y: e.y, z: 6, t: 0, dur: 0.5, maxR: slamR });
+          shake = Math.min(shake + 0.3, 0.7);
+          sfx("land");
+          burstP(e.x, e.y, 8, "#6fae8f", 14, 190);
+          if (e.ultSlam) { /* Barrow Collapse: drag the hero in, then bury */
+            e.ultSlam = false;
+            var bx = player.x - e.x, by = player.y - e.y, bd = Math.hypot(bx, by) || 1;
+            var drag = Math.min(bd - 40, 240);
+            if (drag > 0) { player.x += (bx / bd) * drag; player.y += (by / bd) * drag; }
+            if (dist2(player.x, player.y, e.x, e.y) < slamR * slamR && player.invulnT <= 0) {
+              hurtPlayer(Math.round(e.dmg * 1.4));
+              player.frozenT = Math.max(player.frozenT, 1.0);
+            }
+          } else if (dist2(player.x, player.y, e.x, e.y) < slamR * slamR && player.invulnT <= 0 && !airborne) {
+            hurtPlayer(Math.round(e.dmg * 1.25));
+            player.frozenT = Math.max(player.frozenT, 0.45);
+          }
+          e.atkT = e.atkCd * 1.6;
+        }
+      } else {
+        if (d > e.r + player.r + 30) {
+          var ba = Math.atan2(dy, dx) + wob * 0.25;
+          moveSlide(e, Math.cos(ba) * e.spd * slowMul * dt, Math.sin(ba) * e.spd * slowMul * dt);
+        } else if (e.atkT <= 0 && player.invulnT <= 0 && !airborne) {
+          e.wind = 0.7;
+          e.dashA = Math.atan2(dy, dx);
+        }
+        if (d > 320 && d < 800 && e.hurlCd <= 0) { /* Carrion Hurl */
+          e.hurlCd = 14;
+          fireEnemyShot(e, { spd: 300, r: 11, life: 2.6, dmgMul: 0.9, kind: "corpse", slow: 1.5 });
+          addFloat(e.x, e.y, e.z + e.r + 30, "Carrion Hurl", "#8fb35a", 13);
+        }
+        if (e.hp < e.maxhp * 0.65 && e.guardCd <= 0) { /* Hide of Graves */
+          e.guardCd = 20; e.guard = 3; e.guardHits = 0;
+          addFloat(e.x, e.y, e.z + e.r + 30, "Hide of Graves", "#6fae8f", 13);
+        }
+      }
+    } else if (e.type === "wisp") {
+      e.snareCd -= dt; e.blinkCd -= dt; e.ultT -= dt;
+      if (e.rare && e.ultT <= 0) { e.ultT = 16; castRareUlt(e); }
+      if (e.blinkCd <= 0 && d < 150) { /* Veilstep */
+        e.blinkCd = 16;
+        burstP(e.x, e.y, e.z + 20, "#9fc7dd", 12, 160);
+        var va = rand(0, TAU), t2 = 0, nx2 = e.x, ny2 = e.y;
+        do {
+          nx2 = clamp(e.x + Math.cos(va) * 260, 80, ARENA - 80);
+          ny2 = clamp(e.y + Math.sin(va) * 260, 80, ARENA - 80);
+          va = rand(0, TAU);
+          t2++;
+        } while (curMap().inside && !curMap().inside(nx2, ny2) && t2 < 12);
+        e.x = nx2; e.y = ny2;
+        burstP(e.x, e.y, e.z + 20, "#9fc7dd", 12, 160);
+        addFloat(e.x, e.y, e.z + 30, "Veilstep", "#9fc7dd", 13);
+      }
+      if (d > e.range * 0.85) {
+        var wa = Math.atan2(dy, dx);
+        moveSlide(e, Math.cos(wa) * e.spd * slowMul * dt, Math.sin(wa) * e.spd * slowMul * dt);
+      } else if (d < 180) {
+        var wb = Math.atan2(-dy, -dx);
+        moveSlide(e, Math.cos(wb) * e.spd * slowMul * dt, Math.sin(wb) * e.spd * slowMul * dt);
+      }
+      if (e.atkT <= 0 && d < e.range) { e.atkT = e.atkCd; fireEnemyShot(e, { spd: 320, kind: "frost", slow: 1.6 }); }
+      if (e.snareCd <= 0 && d < 520) { /* Frost Snare */
+        e.snareCd = 12;
+        pushZone({ kind: "trap", x: player.x + rand(-40, 40), y: player.y + rand(-40, 40),
+          r: 34, t: 0, arm: 1, dur: 9, freeze: 1.3, col: "159,199,221" });
+      }
+    } else if (e.type === "charger") {
       if (e.dashT > 0) {
         e.dashT -= dt;
         moveSlide(e, Math.cos(e.dashA) * 520 * slowMul * dt, Math.sin(e.dashA) * 520 * slowMul * dt);
@@ -1763,6 +2662,7 @@ function update(dt) {
     }
     e.x = clamp(e.x, 60, ARENA - 60);
     e.y = clamp(e.y, 60, ARENA - 60);
+    confine(e, eox, eoy);
   }
   for (var a = 0; a < enemies.length; a++) {
     for (var b = a + 1; b < enemies.length; b++) {
@@ -1782,15 +2682,33 @@ function update(dt) {
   /* projectiles */
   for (var p = 0; p < projectiles.length; p++) {
     var pr = projectiles[p];
+    if (pr.hostile && pr.home) { /* lantern bolts seek on their own */
+      var ha2 = Math.atan2(player.y - pr.y, player.x - pr.x);
+      var ca2 = Math.atan2(pr.vy, pr.vx);
+      var da2 = ha2 - ca2;
+      while (da2 > Math.PI) da2 -= TAU;
+      while (da2 < -Math.PI) da2 += TAU;
+      var sp2 = Math.hypot(pr.vx, pr.vy);
+      var na2 = ca2 + clamp(da2, -2.4 * dt, 2.4 * dt);
+      pr.vx = Math.cos(na2) * sp2; pr.vy = Math.sin(na2) * sp2;
+    }
     pr.x += pr.vx * dt; pr.y += pr.vy * dt; pr.life -= dt;
     particles.push({ x: pr.x, y: pr.y, z: pr.z, vx: rand(-15, 15), vy: rand(-15, 15), vz: rand(4, 24),
-      t: 0, dur: 0.3, r: rand(1.5, 3), color: C.ember, grav: -10 });
-    if (pr.life <= 0 || pr.x < 40 || pr.x > ARENA - 40 || pr.y < 40 || pr.y > ARENA - 40) { pr.dead = true; continue; }
+      t: 0, dur: 0.3, r: rand(1.5, 3), color: pr.kind === "frost" ? C.frost : C.ember, grav: -10 });
+    var M = curMap();
+    if (pr.life <= 0 || pr.x < 40 || pr.x > ARENA - 40 || pr.y < 40 || pr.y > ARENA - 40 || (M.inside && !M.inside(pr.x, pr.y))) {
+      if (pr.kind === "corpse") { /* the hurled corpse rises as a Shambling Remnant */
+        spawnEnemy("imp", pr.x, pr.y);
+        addFloat(pr.x, pr.y, 30, "Rises!", "#8fb35a", 12);
+      }
+      pr.dead = true; continue;
+    }
     if (pr.hostile) {
       var hr = player.r + pr.r;
       var pAir = player.air && (player.z - groundZ(player.x, player.y) > 18);
       if (dist2(pr.x, pr.y, player.x, player.y) < hr * hr && player.invulnT <= 0 && !pAir) {
         hurtPlayer(pr.dmg);
+        if (pr.slow) player.slowT = Math.max(player.slowT, pr.slow);
         pr.dead = true;
       }
       continue;
@@ -1800,7 +2718,15 @@ function update(dt) {
       if (en.dead || pr.hit.indexOf(en) >= 0) continue;
       var rr2 = en.r + pr.r;
       if (dist2(pr.x, pr.y, en.x, en.y) < rr2 * rr2) {
-        damageEnemy(en, rollDmg(player.fireDmg), Math.atan2(pr.vy, pr.vx));
+        var roll = rollDmg(player.fireDmg);
+        damageEnemy(en, roll, Math.atan2(pr.vy, pr.vx));
+        if (en.type === "boss" && en.antiphon > 0 && !en.dead) { /* Antiphon: the echo returns the cast */
+          var ea = Math.atan2(player.y - en.y, player.x - en.x);
+          projectiles.push({ x: en.x + Math.cos(ea) * (en.r + 8), y: en.y + Math.sin(ea) * (en.r + 8), z: en.z + 18,
+            vx: Math.cos(ea) * 360, vy: Math.sin(ea) * 360, r: 8, life: 2.4, hostile: true,
+            dmg: Math.max(2, Math.round(roll.v * 1.3)), kind: "echo" });
+          addFloat(en.x, en.y, en.z + en.r + 30, "Antiphon!", "#b08ad8", 14);
+        }
         burstP(pr.x, pr.y, pr.z, C.ember, 6, 110);
         pr.hit.push(en);
         if (pr.pierce > 0) pr.pierce--; else { pr.dead = true; break; }
@@ -1878,6 +2804,13 @@ function update(dt) {
     var pa4 = rand(0, TAU), prd4 = rand(150, 520);
     particles.push({ x: player.x + Math.cos(pa4) * prd4, y: player.y + Math.sin(pa4) * prd4, z: rand(20, 160),
       vx: rand(-5, 5), vy: rand(-5, 5), vz: rand(-6, 6), t: 0, dur: rand(2, 4), r: rand(0.8, 1.6), color: "rgba(220,190,120,0.35)", grav: 0 });
+  } else if (amb === "ash" && Math.random() < dt * 5) {
+    particles.push({ x: player.x + rand(-vw, vw) * 0.6, y: player.y + rand(-vw, vw) * 0.6, z: rand(60, 240),
+      vx: rand(-60, -20), vy: rand(20, 60), vz: rand(-14, -4), t: 0, dur: rand(2, 4), r: rand(0.8, 1.8), color: "rgba(150,145,135,0.4)", grav: 0 });
+  } else if (amb === "veil" && Math.random() < dt * 3) {
+    var pa5 = rand(0, TAU), prd5 = rand(150, 560);
+    particles.push({ x: player.x + Math.cos(pa5) * prd5, y: player.y + Math.sin(pa5) * prd5, z: rand(4, 40),
+      vx: rand(-4, 4), vy: rand(-4, 4), vz: rand(10, 26), t: 0, dur: rand(2.5, 4.5), r: rand(0.8, 1.8), color: "rgba(170,140,220,0.4)", grav: -4 });
   }
 
   /* spawning / wave flow */
@@ -1913,20 +2846,23 @@ function drawFloor() {
   var gx0 = clamp(Math.floor(minPx / TILE), 0, GRID_N - 1), gx1 = clamp(Math.ceil(maxPx / TILE), 0, GRID_N - 1);
   var gy0 = clamp(Math.floor(minPy / TILE), 0, GRID_N - 1), gy1 = clamp(Math.ceil(maxPy / TILE), 0, GRID_N - 1);
 
-  /* big rune ellipse under center dais */
+  /* big rune ellipse under center dais (square arenas only) */
   var c = ARENA / 2;
-  ctx.strokeStyle = "rgba(150,130,100,0.08)";
-  ctx.lineWidth = 2;
-  for (var rr = 300; rr <= 520; rr += 110) {
-    ctx.beginPath();
-    ctx.ellipse(projX(c, c), projY(c, c, 0), rr * SQ2, rr / SQ2, 0, 0, TAU);
-    ctx.stroke();
+  if (!M.inside) {
+    ctx.strokeStyle = "rgba(150,130,100,0.08)";
+    ctx.lineWidth = 2;
+    for (var rr = 300; rr <= 520; rr += 110) {
+      ctx.beginPath();
+      ctx.ellipse(projX(c, c), projY(c, c, 0), rr * SQ2, rr / SQ2, 0, 0, TAU);
+      ctx.stroke();
+    }
   }
 
   for (var gy = gy0; gy <= gy1; gy++) {
     for (var gx = gx0; gx <= gx1; gx++) {
       var h = elev[gx + gy * GRID_N];
       var wx0 = gx * TILE, wy0 = gy * TILE;
+      if (M.inside && !M.inside(wx0 + TILE / 2, wy0 + TILE / 2)) continue;
       var N = [projX(wx0, wy0), projY(wx0, wy0, h)];
       var E = [projX(wx0 + TILE, wy0), projY(wx0 + TILE, wy0, h)];
       var S = [projX(wx0 + TILE, wy0 + TILE), projY(wx0 + TILE, wy0 + TILE, h)];
@@ -1998,11 +2934,28 @@ function drawFloor() {
   ctx.strokeStyle = "rgba(90,70,52,0.5)";
   ctx.lineWidth = 4;
   ctx.beginPath();
-  ctx.moveTo(projX(40, 40), projY(40, 40, 0));
-  ctx.lineTo(projX(ARENA - 40, 40), projY(ARENA - 40, 40, 0));
-  ctx.lineTo(projX(ARENA - 40, ARENA - 40), projY(ARENA - 40, ARENA - 40, 0));
-  ctx.lineTo(projX(40, ARENA - 40), projY(40, ARENA - 40, 0));
-  ctx.closePath(); ctx.stroke();
+  if (M.inside) {
+    var rx0 = Math.max(0, gx0 - 1), rx1 = Math.min(GRID_N - 1, gx1 + 1);
+    var ry0 = Math.max(0, gy0 - 1), ry1 = Math.min(GRID_N - 1, gy1 + 1);
+    for (var rgy = ry0; rgy <= ry1; rgy++) {
+      for (var rgx = rx0; rgx <= rx1; rgx++) {
+        var tcx = rgx * TILE + TILE / 2, tcy = rgy * TILE + TILE / 2;
+        if (!M.inside(tcx, tcy)) continue;
+        var ex0 = rgx * TILE, ey0 = rgy * TILE, ex1 = ex0 + TILE, ey1 = ey0 + TILE;
+        if (!M.inside(tcx, tcy - TILE)) { ctx.moveTo(projX(ex0, ey0), projY(ex0, ey0, 0)); ctx.lineTo(projX(ex1, ey0), projY(ex1, ey0, 0)); }
+        if (!M.inside(tcx, tcy + TILE)) { ctx.moveTo(projX(ex0, ey1), projY(ex0, ey1, 0)); ctx.lineTo(projX(ex1, ey1), projY(ex1, ey1, 0)); }
+        if (!M.inside(tcx - TILE, tcy)) { ctx.moveTo(projX(ex0, ey0), projY(ex0, ey0, 0)); ctx.lineTo(projX(ex0, ey1), projY(ex0, ey1, 0)); }
+        if (!M.inside(tcx + TILE, tcy)) { ctx.moveTo(projX(ex1, ey0), projY(ex1, ey0, 0)); ctx.lineTo(projX(ex1, ey1), projY(ex1, ey1, 0)); }
+      }
+    }
+  } else {
+    ctx.moveTo(projX(40, 40), projY(40, 40, 0));
+    ctx.lineTo(projX(ARENA - 40, 40), projY(ARENA - 40, 40, 0));
+    ctx.lineTo(projX(ARENA - 40, ARENA - 40), projY(ARENA - 40, ARENA - 40, 0));
+    ctx.lineTo(projX(40, ARENA - 40), projY(40, ARENA - 40, 0));
+    ctx.closePath();
+  }
+  ctx.stroke();
 
   /* blood decals (projected ellipse) */
   for (var d = 0; d < decals.length; d++) {
@@ -2539,7 +3492,7 @@ function drawEnemy(e) {
   var sx = projX(e.x, e.y), sy = projY(e.x, e.y, e.z);
   ctx.save();
   ctx.translate(sx, sy);
-  var s = e.type === "elite" ? 1.5 : 1;
+  var s = e.type === "elite" ? 1.5 : e.type === "boss" ? 1.8 : e.rare ? 1.3 : 1;
   ctx.scale(s, s);
   isoShadow(0, (e.z - groundZ(e.x, e.y)) * 0 + 2, e.r * 0.95, 0.38);
   var flash = e.hitT > 0;
@@ -2579,6 +3532,77 @@ function drawEnemy(e) {
       ctx.lineWidth = 2;
       ctx.beginPath(); ctx.ellipse(0, -8, e.r + 14, (e.r + 14) / 2, 0, 0, TAU); ctx.stroke();
     }
+  } else if (e.type === "zealot") {
+    var zc = e.rush > 0 ? "#7a2430" : "#5a1d28";
+    ctx.fillStyle = flash ? C.flash : zc;
+    ctx.beginPath();
+    ctx.moveTo(0, -26);
+    ctx.quadraticCurveTo(11, -14, 9, 0);
+    ctx.quadraticCurveTo(0, 4, -9, 0);
+    ctx.quadraticCurveTo(-11, -14, 0, -26);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = flash ? C.flash : "#7d2c3c"; ctx.lineWidth = 1.5; ctx.stroke();
+    /* the crimson mask, seamed so the thing inside can look out */
+    ctx.fillStyle = flash ? C.flash : "#c8bda0";
+    ctx.beginPath(); ctx.moveTo(-4.5, -22); ctx.lineTo(4.5, -22); ctx.lineTo(3, -16); ctx.lineTo(-3, -16); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = "#3a1018"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, -22); ctx.lineTo(0, -16); ctx.stroke();
+    if (!flash) {
+      ctx.fillStyle = e.rush > 0 ? "#ff6a4f" : "#d4453a";
+      ctx.fillRect(-3, -20.5, 2, 2); ctx.fillRect(1, -20.5, 2, 2);
+    }
+    if (e.channel > 0) { /* Blood Tithe */
+      ctx.strokeStyle = "rgba(198,60,50," + (0.4 + 0.3 * Math.sin(gameTime * 12)) + ")";
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.ellipse(0, -8, 16, 8, 0, 0, TAU); ctx.stroke();
+    }
+  } else if (e.type === "brute") {
+    ctx.fillStyle = flash ? C.flash : (e.guard > 0 ? "#3d5a44" : "#39443a");
+    ctx.beginPath(); ctx.ellipse(0, -14, e.r * 1.05, e.r * 1.2, 0, 0, TAU); ctx.fill();
+    ctx.strokeStyle = flash ? C.flash : "#2a3328"; ctx.lineWidth = 4; ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(-e.r * 0.7, -8); ctx.lineTo(-e.r * 0.95, 4 + walk);
+    ctx.moveTo(e.r * 0.7, -8); ctx.lineTo(e.r * 0.95, 4 - walk);
+    ctx.stroke();
+    /* tombstone shoulders */
+    ctx.fillStyle = flash ? C.flash : "#6b7565";
+    ctx.fillRect(-e.r * 0.9, -30, e.r * 0.55, 14);
+    ctx.fillRect(e.r * 0.35, -30, e.r * 0.55, 14);
+    if (!flash) {
+      ctx.fillStyle = "#b8d890";
+      ctx.fillRect(-5, -20, 3, 3); ctx.fillRect(2, -20, 3, 3);
+    }
+    if (e.guard > 0) { /* Hide of Graves shell */
+      ctx.strokeStyle = "rgba(140,190,140," + (0.35 + 0.25 * Math.sin(gameTime * 8)) + ")";
+      ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.ellipse(0, -12, e.r + 12, (e.r + 12) / 1.4, 0, 0, TAU); ctx.stroke();
+    }
+  } else if (e.type === "wisp") {
+    var wbob = Math.sin(gameTime * 3 + e.seed) * 3;
+    ctx.strokeStyle = flash ? C.flash : "rgba(159,199,221,0.5)";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(0, -6); ctx.quadraticCurveTo(-6, 2 + wbob * 0.3, 0, 9);
+    ctx.moveTo(0, -6); ctx.quadraticCurveTo(6, 2 - wbob * 0.3, 0, 9);
+    ctx.stroke();
+    /* the lantern cage */
+    ctx.strokeStyle = flash ? C.flash : "#8fa8b8";
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.moveTo(-6, -24 + wbob); ctx.lineTo(6, -24 + wbob); ctx.lineTo(8, -12 + wbob);
+    ctx.lineTo(0, -8 + wbob); ctx.lineTo(-8, -12 + wbob); ctx.closePath(); ctx.stroke();
+    ctx.fillStyle = flash ? C.flash : "rgba(190,225,240,0.9)";
+    ctx.beginPath(); ctx.arc(0, -16 + wbob, 3.4, 0, TAU); ctx.fill();
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    var wgl = ctx.createRadialGradient(0, -16 + wbob, 0, 0, -16 + wbob, 18);
+    wgl.addColorStop(0, "rgba(159,199,221,0.5)");
+    wgl.addColorStop(1, "rgba(159,199,221,0)");
+    ctx.fillStyle = wgl;
+    ctx.beginPath(); ctx.arc(0, -16 + wbob, 18, 0, TAU); ctx.fill();
+    ctx.restore();
+  } else if (e.type === "boss") {
+    drawBoss(e, flash, walk);
   } else if (e.type === "cultist") {
     ctx.fillStyle = flash ? C.flash : "#26332a";
     ctx.beginPath();
@@ -2637,15 +3661,127 @@ function drawEnemy(e) {
     ctx.fillStyle = "rgba(159,199,221,0.38)";
     ctx.beginPath(); ctx.ellipse(0, -12, e.r, e.r * 1.25, 0, 0, TAU); ctx.fill();
   }
+  if (e.rare) { /* awakened: the super appearance holds */
+    ctx.strokeStyle = "rgba(232,160,79," + (0.4 + 0.25 * Math.sin(gameTime * 5)) + ")";
+    ctx.lineWidth = 2;
+    ctx.setLineDash([8, 7]);
+    ctx.lineDashOffset = -gameTime * 30;
+    ctx.beginPath(); ctx.ellipse(0, -10, e.r + 16, (e.r + 16) / 1.6, 0, 0, TAU); ctx.stroke();
+    ctx.setLineDash([]);
+  }
   ctx.restore();
 
-  if (e.hp < e.maxhp) {
+  if (e.hp < e.maxhp && e.type !== "boss") {
     var w = e.r * 2.4;
-    var hy = sy - e.r * (e.type === "elite" ? 1.5 : 1) - 34;
+    var hy = sy - e.r * (e.type === "elite" ? 1.5 : e.rare ? 1.3 : 1) - 34;
     ctx.fillStyle = "rgba(10,8,6,0.8)";
     ctx.fillRect(sx - w / 2, hy, w, 4);
-    ctx.fillStyle = e.type === "elite" ? "#c6523c" : "#8f3020";
+    ctx.fillStyle = e.type === "elite" || e.rare ? "#c6523c" : "#8f3020";
     ctx.fillRect(sx - w / 2, hy, w * clamp(e.hp / e.maxhp, 0, 1), 4);
+  }
+}
+function drawBoss(e, flash, walk) {
+  var B = BOSSES[e.bid];
+  var el = B.el;
+  var bob = Math.sin(gameTime * 2.2 + e.seed) * 3;
+  /* elemental aura */
+  ctx.strokeStyle = "rgba(" + el + "," + (0.3 + 0.15 * Math.sin(gameTime * 3)) + ")";
+  ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.ellipse(0, -16, e.r + 18, (e.r + 18) / 1.6, 0, 0, TAU); ctx.stroke();
+  if (e.bid === "vhalgrim") {
+    if (e.awake) { /* wings of packed cinder + halo of embers */
+      ctx.fillStyle = flash ? C.flash : "#4a2416";
+      ctx.beginPath();
+      ctx.moveTo(-10, -30); ctx.quadraticCurveTo(-e.r * 1.9, -52 + bob, -e.r * 2.1, -18);
+      ctx.quadraticCurveTo(-e.r * 1.4, -22, -10, -14); ctx.closePath(); ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(10, -30); ctx.quadraticCurveTo(e.r * 1.9, -52 + bob, e.r * 2.1, -18);
+      ctx.quadraticCurveTo(e.r * 1.4, -22, 10, -14); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = "rgba(224,122,58,0.7)";
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.ellipse(0, -58, 26, 8, 0, 0, TAU); ctx.stroke();
+    }
+    /* the iron cauldron of his armor */
+    ctx.fillStyle = flash ? C.flash : "#3a2a22";
+    ctx.beginPath();
+    ctx.moveTo(-e.r * 0.8, -34); ctx.lineTo(e.r * 0.8, -34);
+    ctx.lineTo(e.r * 0.62, 2); ctx.lineTo(-e.r * 0.62, 2); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = flash ? C.flash : "#57402f"; ctx.lineWidth = 2.5; ctx.stroke();
+    ctx.fillStyle = flash ? C.flash : "#241a14";
+    ctx.fillRect(-9, -44, 18, 12);
+    if (!flash) {
+      ctx.fillStyle = "#ff9b45";
+      ctx.fillRect(-6, -40, 4, 3.4); ctx.fillRect(2, -40, 4, 3.4);
+    }
+    ctx.strokeStyle = flash ? C.flash : "#2e211a"; ctx.lineWidth = 5; ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(-8, 2); ctx.lineTo(-9 + walk, 12);
+    ctx.moveTo(8, 2); ctx.lineTo(9 - walk, 12);
+    ctx.stroke();
+  } else if (e.bid === "madrega") {
+    /* a congregation stitched from worthiest bones */
+    ctx.fillStyle = flash ? C.flash : "#d8cfae";
+    ctx.beginPath();
+    ctx.moveTo(0, -48);
+    ctx.quadraticCurveTo(e.r * 0.8, -26, e.r * 0.66, 4);
+    ctx.quadraticCurveTo(0, 10, -e.r * 0.66, 4);
+    ctx.quadraticCurveTo(-e.r * 0.8, -26, 0, -48);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = flash ? C.flash : "#a99c78"; ctx.lineWidth = 1.6; ctx.stroke();
+    /* halo of pilgrim relics */
+    var relicN = e.awake ? 7 : 4;
+    for (var rc = 0; rc < relicN; rc++) {
+      var ra = gameTime * 1.2 + rc * TAU / relicN;
+      ctx.fillStyle = "#c8bda0";
+      ctx.fillRect(Math.cos(ra) * 24 - 1.6, -54 + Math.sin(ra) * 6 - 1.6, 3.2, 3.2);
+    }
+    if (e.awake) { /* lifted into a frame of borrowed ribs */
+      ctx.strokeStyle = "rgba(200,189,160,0.55)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-e.r * 0.9, -40); ctx.quadraticCurveTo(-e.r * 1.25, -16, -e.r * 0.85, 6);
+      ctx.moveTo(e.r * 0.9, -40); ctx.quadraticCurveTo(e.r * 1.25, -16, e.r * 0.85, 6);
+      ctx.stroke();
+    }
+    if (!flash) {
+      ctx.fillStyle = "#8f3020";
+      ctx.fillRect(-5, -42, 3.4, 3.4); ctx.fillRect(2, -42, 3.4, 3.4);
+    }
+  } else { /* the Unheard Choir */
+    /* a veil of hush: dashed rings around a void core */
+    for (var ring = 0; ring < 3; ring++) {
+      var rr = (e.r + 6) * (1 - ring * 0.24);
+      ctx.strokeStyle = flash ? C.flash : "rgba(" + el + "," + (0.75 - ring * 0.2) + ")";
+      ctx.lineWidth = 2.5;
+      ctx.setLineDash([14, 10]);
+      ctx.lineDashOffset = gameTime * (ring % 2 ? 30 : -30);
+      ctx.beginPath(); ctx.ellipse(0, -26 + bob * 0.4, rr * 1.25, rr * 0.5, 0, 0, TAU); ctx.stroke();
+    }
+    ctx.setLineDash([]);
+    ctx.fillStyle = flash ? C.flash : "#171223";
+    ctx.beginPath(); ctx.ellipse(0, -26 + bob * 0.4, e.r * 0.72, e.r * 0.6, 0, 0, TAU); ctx.fill();
+    if (e.awake) { /* a collar of mouths where a head should be */
+      for (var mt = 0; mt < 6; mt++) {
+        var ma = mt * TAU / 6 + gameTime * 0.6;
+        ctx.fillStyle = "rgba(190,140,240,0.75)";
+        ctx.beginPath();
+        ctx.arc(Math.cos(ma) * e.r * 0.75, -26 + bob * 0.4 + Math.sin(ma) * e.r * 0.5, 2.4, 0, TAU);
+        ctx.fill();
+      }
+    } else if (!flash) {
+      ctx.fillStyle = "#b08ad8";
+      ctx.beginPath(); ctx.arc(0, -26 + bob * 0.4, 3, 0, TAU); ctx.fill();
+    }
+  }
+  if (e.antiphon > 0) { /* it listens for a spell to mock */
+    ctx.strokeStyle = "rgba(" + el + "," + (0.4 + 0.3 * Math.sin(gameTime * 10)) + ")";
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.ellipse(0, -20, e.r + 26, (e.r + 26) / 1.8, 0, 0, TAU); ctx.stroke();
+  }
+  if (e.channel > 0) { /* Ossuary Mend */
+    ctx.strokeStyle = "rgba(143,179,90," + (0.4 + 0.3 * Math.sin(gameTime * 9)) + ")";
+    ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.ellipse(0, -20, e.r + 10, (e.r + 10) / 1.6, 0, 0, TAU); ctx.stroke();
   }
 }
 function drawPlayer() {
@@ -2715,6 +3851,13 @@ function drawPlayer() {
   ctx.fillStyle = "#463b2e"; ctx.fillRect(0, -1.5, 6, 3);
   ctx.restore();
   ctx.restore();
+  if (p.frozenT > 0) { /* frost snare / barrow bury */
+    ctx.fillStyle = "rgba(159,199,221,0.38)";
+    ctx.beginPath(); ctx.ellipse(sx, sy - 14, 17, 26, 0, 0, TAU); ctx.fill();
+    ctx.strokeStyle = "rgba(159,199,221,0.7)";
+    ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.ellipse(sx, sy, 17 * SQ2, 17 / SQ2, 0, 0, TAU); ctx.stroke();
+  }
 }
 function drawProjectile(pr) {
   var sx = projX(pr.x, pr.y), sy = projY(pr.x, pr.y, pr.z);
@@ -2722,9 +3865,23 @@ function drawProjectile(pr) {
   ctx.globalCompositeOperation = "lighter";
   var g = ctx.createRadialGradient(sx, sy, 0, sx, sy, 14);
   if (pr.hostile) {
-    g.addColorStop(0, "#cfe89a");
-    g.addColorStop(0.4, "#7da24f");
-    g.addColorStop(1, "rgba(60,90,30,0)");
+    if (pr.kind === "frost") {
+      g.addColorStop(0, "#dff0fa");
+      g.addColorStop(0.4, "#9fc7dd");
+      g.addColorStop(1, "rgba(90,130,170,0)");
+    } else if (pr.kind === "corpse") {
+      g.addColorStop(0, "#cfe0b0");
+      g.addColorStop(0.4, "#6fae8f");
+      g.addColorStop(1, "rgba(50,90,60,0)");
+    } else if (pr.kind === "echo") {
+      g.addColorStop(0, "#e4d2f8");
+      g.addColorStop(0.4, "#a87ad8");
+      g.addColorStop(1, "rgba(90,60,140,0)");
+    } else {
+      g.addColorStop(0, "#cfe89a");
+      g.addColorStop(0.4, "#7da24f");
+      g.addColorStop(1, "rgba(60,90,30,0)");
+    }
   } else {
     g.addColorStop(0, "#f4c07a");
     g.addColorStop(0.4, C.ember);
@@ -2791,6 +3948,7 @@ function render() {
   ctx.translate(vw / 2 - camSX + sx, vh * 0.58 - camSY + sy);
 
   drawFloor();
+  drawZones();
 
   /* ground items first */
   for (var pk = 0; pk < pickups.length; pk++) drawPickup(pickups[pk]);
@@ -2842,6 +4000,10 @@ function render() {
   ctx.fillRect(0, 0, vw, vh);
   ctx.fillStyle = vignette;
   ctx.fillRect(0, 0, vw, vh);
+  if (player.silenced > 0) { /* Silent Verse: the dome of hush */
+    ctx.fillStyle = "rgba(18,10,28," + (0.3 + 0.08 * Math.sin(gameTime * 3)).toFixed(3) + ")";
+    ctx.fillRect(0, 0, vw, vh);
+  }
 
   var hpFrac = player.hp / player.maxhp;
   if (state !== "menu" && hpFrac < 0.3) {
@@ -2890,6 +4052,7 @@ var xpFill = document.getElementById("xpFill");
 var uiFoes = document.getElementById("uiFoes"), uiLevel = document.getElementById("uiLevel"), uiGold = document.getElementById("uiGold"), uiPower = document.getElementById("uiPower");
 var uiPotions = document.getElementById("uiPotions");
 var cdSwing = document.getElementById("cdSwing"), cdNova = document.getElementById("cdNova"), cdFire = document.getElementById("cdFire"), cdLeap = document.getElementById("cdLeap");
+var bossBarEl = null, bossNameEl = null, bossFillEl = null, bossPipsEl = null, btnBeastEl = null;
 var slotSword = document.getElementById("slotSword"), slotFire = document.getElementById("slotFire"),
     slotNova = document.getElementById("slotNova"), slotLeap = document.getElementById("slotLeap"), slotPotion = document.getElementById("slotPotion");
 var interNum = document.getElementById("interNum");
@@ -2934,7 +4097,272 @@ function updateHUD() {
   slotLeap.title = "Leap — " + player.leapCd.toFixed(1) + "s cd" + (player.quake ? " · quake " + Math.round(player.quake) + " dmg" : "");
   slotPotion.title = "Healing Potion — restores " + Math.round(player.potionPower * 100) + "% of life";
   if (state === "intermission") interNum.textContent = Math.ceil(interTimer);
+  /* realm guardian bar */
+  if (!bossBarEl) {
+    bossBarEl = document.getElementById("bossBar");
+    bossNameEl = document.getElementById("bossName");
+    bossFillEl = document.getElementById("bossFill");
+    bossPipsEl = document.getElementById("bossPips");
+    btnBeastEl = document.getElementById("btnBeast");
+  }
+  btnBeastEl.style.display = (state === "menu" || state === "dead") ? "none" : "";
+  if (bossRef && !bossRef.dead && state !== "menu" && state !== "dead") {
+    var BB = BOSSES[bossRef.bid];
+    bossBarEl.classList.remove("hidden");
+    bossNameEl.textContent = BB.name;
+    bossFillEl.style.width = clamp(bossRef.hp / bossRef.maxhp * 100, 0, 100) + "%";
+    bossFillEl.style.background = "linear-gradient(90deg, rgba(" + BB.el + ",0.8), rgba(" + BB.el + ",1))";
+    var pips = "";
+    for (var pi = 0; pi < BB.phases.length; pi++) pips += '<i class="' + (bossRef.phase > pi ? "on" : "") + '"></i>';
+    bossPipsEl.innerHTML = pips;
+  } else bossBarEl.classList.add("hidden");
 }
+
+/* ---------- bestiary (from Open Design ashes-of-sanctuary-bestiary) ---------- */
+var BESTIARY = [
+  {
+    group: "Bosses", name: "Vhalgrim, the Ash Tyrant", title: "Realm Guardian · The Burning Threshold",
+    type: "World Boss", level: 64, zone: "Ashen Caldera", elName: "Fire", el: "#e07a3a",
+    hp: "1,842,000", dmg: "9,800 – 38,000", threat: 5,
+    lore: "He burned the library of Yelesna so that no one would ever read the prophecy that named the day of his death.",
+    skills: [
+      { n: "Emberfall", meta: "Telegraph ×3 · 14s cooldown",
+        icon: '<circle cx="12" cy="14" r="5"/><path d="M9 9 L7 5 M15 9 L17 5 M12 8 V4 M6 19 L3 20 M18 19 L21 20"/>',
+        d: "Marks three cinder circles for 3s, then rains burning ash for 2.4s. Each circle leaves a scorched fissure that ignites movement for 8s." },
+      { n: "Cinder Wake", meta: "Slam · 22s cooldown",
+        icon: '<path d="M3 18 H21 M7 18 L10 12 L9 7 M15 18 L17 13 L16 8"/><circle cx="12" cy="5" r="2"/>',
+        d: "A shattering slam splits the floor toward the farthest hero. The fissure erupts for 9,800 fire damage and knocks everything on it prone for 1.2s." },
+      { n: "Pyre Chains", meta: "Tether ×3 · 26s cooldown",
+        icon: '<circle cx="7" cy="7" r="3"/><circle cx="17" cy="17" r="3"/><path d="M9.2 9.2 L14.8 14.8 M7 10 V20 M17 14 V4"/>',
+        d: "Fetters three heroes to iron obelisks. Break the tether within 4s or be dragged to the pyre and seared for 14,000 damage." }
+    ],
+    awake: { name: "Crown of Living Ash", when: "at 50% life",
+      d: "The iron cauldron of his armor sloughs away in molten sheets. Wings of packed cinder unfold, a halo of embers crowns him, and every fissure he leaves now burns twice as long.",
+      ult: { n: "Ruinator's Dawn", meta: "Ultimate · once per awakening",
+        icon: '<circle cx="12" cy="12" r="4"/><path d="M12 2 v4 M12 18 v4 M2 12 h4 M18 12 h4 M5 5 l2.8 2.8 M16.2 16.2 L19 19 M19 5 l-2.8 2.8 M7.8 16.2 L5 19"/>',
+        d: "He hangs in the air, gathers the arena's ash into a seam of white heat, then sweeps the beam across the floor. The lee side of a standing obelisk is the only shelter — everything else is floor-light." } },
+    sig: '<g class="faint"><circle cx="60" cy="60" r="46"/></g><path d="M32 90 L60 22 L88 90"/><path class="elx" d="M44 90 Q60 56 76 90"/><path class="faint" d="M36 100 H84"/><circle class="fill-dot" cx="46" cy="70" r="2.5"/><circle class="fill-dot" cx="74" cy="70" r="2.5"/>',
+    sigAwake: '<circle class="elx halo" cx="60" cy="60" r="51" stroke-dasharray="4 8"/><path d="M28 88 L60 12 L92 88"/><path class="elx" d="M42 88 Q60 48 78 88"/><path d="M50 88 Q60 66 70 88"/><path class="faint" d="M30 58 Q10 44 14 18"/><path class="faint" d="M90 58 Q110 44 106 18"/><path class="elx" d="M34 96 H86"/><circle class="fill-dot" cx="60" cy="6" r="3"/><circle class="fill-dot" cx="38" cy="34" r="2.2"/><circle class="fill-dot" cx="82" cy="34" r="2.2"/>'
+  },
+  {
+    group: "Bosses", name: "Madrega, the Marrow Saint", title: "Realm Guardian · Ossuary of the Pale Court",
+    type: "Dungeon Boss", level: 63, zone: "Ossuary Court", elName: "Bone", el: "#d8c9a3",
+    hp: "926,500", dmg: "6,900 – 24,500", threat: 4,
+    lore: "She stitches congregations from the worthiest bones of pilgrims, and every relic in her halo is a soul she swears she saved.",
+    skills: [
+      { n: "Reliquary Spikes", meta: "Lanes · 12s cooldown",
+        icon: '<path d="M5 20 L9 8 L13 20 M13 20 L17 6 L21 20"/>',
+        d: "Lines of bone erupt along marked aisles after 2s. Impaled heroes take 8,200 damage, and each drop sends a shockwave through the pews." },
+      { n: "Choir of Hands", meta: "Zone · 18s cooldown",
+        icon: '<path d="M5 21 q0 -8 7 -8 q7 0 7 8"/><path d="M8 13 v-4 M12 12 V6 M16 13 v-4"/>',
+        d: "The floor sprouts grasping hands in a wide arc. Rooted heroes are dragged 4m toward Madrega each second until a hit frees them." },
+      { n: "Ossuary Mend", meta: "Channel · 24s cooldown",
+        icon: '<circle cx="12" cy="12" r="7"/><path d="M9.5 12 h5 M12 9.5 v5 M12 2 v3 M12 19 v3"/>',
+        d: "Consumes the nearest corpse to knit 6% life back as bone plating. Destroy the plating (142,000) or her next spell casts twice." }
+    ],
+    awake: { name: "The Reliquary Assumed", when: "at 40% life",
+      d: "She is lifted into a frame of borrowed ribs — a walking cathedral. Pilgrim relics orbit her halo, the pews splinter into bone scaffolding, and her shadow now falls in arches.",
+      ult: { n: "Nave of a Thousand Ribs", meta: "Ultimate · once per awakening",
+        icon: '<path d="M4 20 V12 Q12 2 20 12 V20 M8 20 V13 Q12 8 16 13 V20"/>',
+        d: "The rib-vault closes overhead and contracts in three pulses. Gaps open on the floor beneath the relics still orbiting her — stand in a relic's shadow, or be crushed with the nave." } },
+    sig: '<g class="faint"><circle cx="60" cy="62" r="44"/></g><path d="M42 96 V54 Q60 32 78 54 V96"/><path class="faint" d="M50 96 V58 Q60 46 70 58 V96"/><path d="M60 40 V50"/><circle class="fill-dot" cx="60" cy="26" r="2.5"/><circle class="fill-dot" cx="48" cy="38" r="2"/><circle class="fill-dot" cx="72" cy="38" r="2"/>',
+    sigAwake: '<circle class="elx halo" cx="60" cy="60" r="52" stroke-dasharray="3 9"/><path d="M36 96 V46 Q60 20 84 46 V96"/><path class="faint" d="M20 96 V66 Q28 54 36 66 V96"/><path class="faint" d="M84 96 V66 Q92 54 100 66 V96"/><path class="elx" d="M48 96 V56 Q60 42 72 56 V96"/><path d="M60 22 V8"/><circle class="fill-dot" cx="60" cy="5" r="2.5"/><circle class="fill-dot" cx="44" cy="28" r="2"/><circle class="fill-dot" cx="76" cy="28" r="2"/><circle class="fill-dot" cx="30" cy="44" r="2"/><circle class="fill-dot" cx="90" cy="44" r="2"/>'
+  },
+  {
+    group: "Bosses", name: "The Unheard Choir", title: "Realm Guardian · Beneath the Silent Nave",
+    type: "Pinnacle Boss", level: 65, zone: "Hexfound Court", elName: "Whisper", el: "#a87ad8",
+    hp: "2,310,000", dmg: "7,400 – 31,000", threat: 5,
+    lore: "It sings one note beneath hearing; those who hear it stop singing anything of their own.",
+    skills: [
+      { n: "Silent Verse", meta: "Dome · 30s cooldown",
+        icon: '<path d="M4 14 a8 8 0 0 1 16 0 Z"/><path d="M8 14 v2 M12 14 v3 M16 14 v2"/>',
+        d: "A dome of hush swallows the arena: skill cues are muted and callouts die at the lips for 6s. Only emote pings cut through." },
+      { n: "Hollowing Hymn", meta: "Rings ×4 · 16s cooldown",
+        icon: '<circle cx="12" cy="12" r="3"/><path d="M12 5 a7 7 0 0 1 7 7 M12 19 a7 7 0 0 1 -7 -7"/>',
+        d: "Rings of near-sound pulse outward. Each ring that passes through a hero strips 4% life and one buff, and leaves a note of dread stacked on them." },
+      { n: "Antiphon", meta: "Counter · 20s cooldown",
+        icon: '<path d="M6 6 v12 M18 6 v12 M9 9 l3 3 -3 3 M15 9 l-3 3 3 3"/>',
+        d: "Mocks the last skill used against it, returning the cast at 130% strength. Bait a cheap spell into the echo during its 6s window." }
+    ],
+    awake: { name: "The Note Made Flesh", when: "at 60% and 30% life",
+      d: "The veil of hush tears. What knits itself into the arena is a titan of woven silence — a collar of mouths where a head should be — and the arena drains of color as it breathes.",
+      ult: { n: "Dirge", meta: "Ultimate · at each awakening",
+        icon: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M4 12 H2 M22 12 h-2 M12 4 V2 M12 22 v-2"/>',
+        d: "It inhales, and the entire floor becomes the hitbox — save one alcove of standing sound. Fight the pull and reach the alcove, or the dirge takes everything left." } },
+    sig: '<circle cx="60" cy="60" r="44" stroke-dasharray="46 24"/><circle class="faint" cx="60" cy="60" r="24"/><circle class="fill-dot" cx="60" cy="60" r="3"/><g class="faint"><path d="M8 60 h9"/><path d="M11 46 h7"/><path d="M11 74 h7"/></g>',
+    sigAwake: '<circle class="elx halo" cx="60" cy="60" r="52" stroke-dasharray="10 8"/><circle cx="60" cy="60" r="40" stroke-dasharray="52 32"/><circle class="faint" cx="60" cy="60" r="28" stroke-dasharray="30 14"/><path d="M46 60 Q60 48 74 60 Q60 72 46 60 Z"/><circle class="fill-dot" cx="60" cy="60" r="5"/><g class="elx"><path d="M104 60 H112"/><path d="M91 91 L97 97"/><path d="M60 104 V112"/><path d="M29 91 L23 97"/><path d="M16 60 H8"/><path d="M29 29 L23 23"/><path d="M60 16 V8"/><path d="M91 29 L97 23"/></g>'
+  },
+  {
+    group: "Monsters", name: "Bloodsworn Zealot", title: "Elite · Yelesna Path",
+    type: "Elite", level: 62, zone: "The Nine Realms", elName: "Blood", el: "#c6523c",
+    hp: "48,300", dmg: "2,900 – 8,700", threat: 3,
+    lore: "The Bloodsworn give their masks a seam, so the thing inside can look out when the rite goes well.",
+    skills: [
+      { n: "Crimson Arc", meta: "Dash · 8s cooldown",
+        icon: '<path d="M4 18 Q12 4 20 10"/><path d="M20 10 h-4 M20 10 v4"/>',
+        d: "A dashing crescent slash that leaves a bleeding trail for 5s. Standing in the trail feeds the zealot 2% life per second." },
+      { n: "Flagellant's Rush", meta: "Enrage · 24s cooldown",
+        icon: '<path d="M5 19 q6 -2 7 -9 M12 10 q4 2 6 -2 M18 8 q2 -3 0 -5"/>',
+        d: "Whips itself into frenzy: +40% attack speed for 6s, but it takes 15% more damage — the window to burst it down." },
+      { n: "Blood Tithe", meta: "Channel · 18s cooldown",
+        icon: '<circle cx="8" cy="12" r="4"/><path d="M12 12 h8 M17 9 l3 3 -3 3"/>',
+        d: "Kneels and channels for 3s, siphoning life from the nearest hero up to 12m away. An interrupt breaks the rite and stuns it for 2s." }
+    ],
+    awake: { name: "Bloodsworn Vessel", when: "rare · survives its failed Tithe",
+      d: "The crimson mask splits along its seam. What stands up floats a hand's breadth off the ground, veins lit from beneath — and every death within 20m feeds it a verse of the Sanguine Litany.",
+      ult: { n: "Exsanguinating Scream", meta: "Ultimate · while super form holds",
+        icon: '<ellipse cx="12" cy="12" rx="4" ry="7"/><path d="M8 6 Q4 4 3 1 M16 6 Q20 4 21 1"/>',
+        d: "A scream that pulls blood out through the skin — 40% of current life over 3s. Break line of sight, or purge the scream early with a stun." } },
+    sig: '<path d="M60 22 L88 60 L60 98 L32 60 Z"/><path class="elx" d="M60 40 Q66 60 60 80 Q54 60 60 40 Z"/><circle class="fill-dot" cx="84" cy="82" r="2.5"/><circle class="fill-dot" cx="80" cy="92" r="1.8"/>',
+    sigAwake: '<circle class="faint halo" cx="60" cy="60" r="50" stroke-dasharray="5 7"/><path d="M54 24 L80 58 L54 94"/><path class="elx" d="M68 24 L92 58 L68 94"/><g class="faint"><path d="M62 60 L50 46 L42 48"/><path d="M62 60 L74 42"/><path d="M62 60 L54 80 L46 84"/></g><circle class="fill-dot" cx="30" cy="42" r="2.5"/><circle class="fill-dot" cx="34" cy="78" r="2.2"/><circle class="fill-dot" cx="90" cy="30" r="2.2"/>'
+  },
+  {
+    group: "Monsters", name: "Gravehide Brute", title: "Heavy · Barrow Fields",
+    type: "Heavy Undead", level: 61, zone: "The Nine Realms", elName: "Rot", el: "#8fb35a",
+    hp: "71,900", dmg: "4,100 – 12,600", threat: 2,
+    lore: "Gravediggers bury them shallow, hoping they'll do the digging back up themselves.",
+    skills: [
+      { n: "Bone Toll", meta: "Slam · 10s cooldown",
+        icon: '<path d="M6 16 q6 -12 12 0 Z"/><path d="M12 19 v2 M10 21 h4 M8 8 h8"/>',
+        d: "An overhead slam with a bell-deep report. The shockwave staggers everything within 5m and rings nearby tombstones awake for 4s." },
+      { n: "Carrion Hurl", meta: "Ranged · 14s cooldown",
+        icon: '<circle cx="16" cy="8" r="3"/><path d="M13 11 L6 18" stroke-dasharray="3 3"/>',
+        d: "Tears a corpse from the ground and hurls it. On hit: 6,400 rot damage and a 30% slow. On miss: the corpse rises as a Shambling Remnant." },
+      { n: "Hide of Graves", meta: "Guard · 20s cooldown",
+        icon: '<path d="M5 12 q7 -9 14 0 q-7 9 -14 0 Z"/><path d="M9 9 l1.5 3 M15 9 l-1.5 3"/>',
+        d: "Tucks into its own mass, shedding 60% of damage for 3s. The shell cracks with every hit — five hits shatter it into an opening." }
+    ],
+    awake: { name: "Cairn Raised", when: "rare · three corpses within reach",
+      d: "The Brute inhales the grave-dirt and the corpses with it. Stone and ribcage pile outward into a walking cairn half again its size, and its footfalls now crater the ground.",
+      ult: { n: "Barrow Collapse", meta: "Ultimate · while super form holds",
+        icon: '<path d="M3 20 h18 M6 20 l2 -8 4 -3 4 3 2 8"/><path d="M12 6 v-3 M9 4 l3 -2 3 2"/>',
+        d: "It slams both fists down and the cairn folds inward, pulling heroes 8m toward the impact and burying them. Mash free before the mound stills — 2.5s." } },
+    sig: '<path d="M34 94 V58 Q34 32 60 32 Q86 32 86 58 V94"/><g class="faint"><path d="M48 42 L56 62 L48 80"/><path d="M74 44 L68 64"/></g><circle class="fill-dot" cx="50" cy="56" r="2.5"/><circle class="fill-dot" cx="70" cy="56" r="2.5"/>',
+    sigAwake: '<circle class="faint halo" cx="60" cy="62" r="50" stroke-dasharray="14 10"/><path d="M28 94 V56 Q28 28 60 28 Q92 28 92 56 V94"/><path d="M28 58 L14 44"/><path d="M92 58 L106 44"/><path d="M46 32 L42 16"/><path d="M74 32 L78 16"/><g class="faint"><path d="M46 40 L54 62 L46 82"/><path d="M76 42 L70 64 L76 80"/><path d="M60 38 V50"/></g><circle class="fill-dot" cx="48" cy="56" r="2.5"/><circle class="fill-dot" cx="72" cy="56" r="2.5"/><circle class="fill-dot" cx="60" cy="64" r="2.5"/>'
+  },
+  {
+    group: "Monsters", name: "Hollow Wisp", title: "Caster · The Hollow Marches",
+    type: "Caster", level: 60, zone: "The Nine Realms", elName: "Frost", el: "#9fc7dd",
+    hp: "18,200", dmg: "1,800 – 6,200", threat: 1,
+    lore: "Follow the lantern only if you are willing to owe the night a favor.",
+    skills: [
+      { n: "Rime Bolt", meta: "Ranged · 4s cooldown",
+        icon: '<path d="M4 20 L18 6 M18 6 l-5 1 M18 6 l-1 5"/><path d="M20 12 l1 2 M16 16 l2 1"/>',
+        d: "A splinter of quiet cold: 3,100 frost damage and a 10% attack-speed slow for 4s. It prefers targets that are already chilled." },
+      { n: "Frost Snare", meta: "Trap · 12s cooldown",
+        icon: '<circle cx="12" cy="14" r="5" stroke-dasharray="3 3"/><path d="M12 9 V4 M9 6 l3 3 M15 6 l-3 3"/>',
+        d: "Breathes a rune onto the ground that arms after 1s. The first hero to cross it is frozen for 1.5s — and the wisp's next bolt always crits." },
+      { n: "Veilstep", meta: "Blink · 16s cooldown",
+        icon: '<circle cx="7" cy="12" r="2.5" stroke-dasharray="2 2"/><circle cx="17" cy="12" r="2.5"/><path d="M9.5 12 h5" stroke-dasharray="2 2"/>',
+        d: "Slips out of sight and reappears 9m away, leaving a decoy lantern that burns for 2s. Killing the decoy drops the wisp's guard for 3s." }
+    ],
+    awake: { name: "Wisp of the Long Night", when: "rare · three wisps braided at night",
+      d: "Three wisps fuse into a lantern-spirit tall as a doorpost, its case a cage of quiet snowlight. The fog around it moves against the wind, and the lantern swings slow as a heartbeat.",
+      ult: { n: "Lantern of the Quiet Snow", meta: "Ultimate · while super form holds",
+        icon: '<rect x="8" y="7" width="8" height="10"/><path d="M10 7 V5 h4 v2 M11 17 v2 h2 v-2"/><circle cx="12" cy="12" r="2"/>',
+        d: "It opens the lantern. A dome of falling quiet expands to 12m — inside, everything is slowed by half and its bolts seek on their own. Leave the dome, or put out the light." } },
+    sig: '<circle class="elx" cx="66" cy="46" r="9"/><path d="M61 53 Q44 72 28 66"/><path class="faint" d="M66 55 Q58 82 42 86"/><path class="faint" d="M86 68 l5 6 -5 6 -5 -6 Z"/><path class="faint" d="M32 38 l4 5 -4 5 -4 -5 Z"/>',
+    sigAwake: '<path d="M92 60 L76 88 L44 88 L28 60 L44 32 L76 32 Z"/><circle class="elx" cx="52" cy="46" r="7"/><circle class="elx" cx="70" cy="42" r="7"/><circle class="elx" cx="60" cy="64" r="9"/><circle class="fill-dot" cx="60" cy="52" r="3"/><g class="faint"><path d="M60 14 V24"/><path d="M96 44 L88 50"/><path d="M24 44 L32 50"/><path d="M92 78 L84 74"/><path d="M28 78 L36 74"/></g>'
+  }
+];
+var beastState = { idx: 0, awake: false };
+function beastStat(label, value) {
+  return '<div><div class="l">' + label + '</div><div class="v num">' + value + "</div></div>";
+}
+function beastSkillCard(s) {
+  return '<div class="sk-card"><div class="sk-top"><svg viewBox="0 0 24 24">' + s.icon + '</svg><span class="sk-name">' + s.n + "</span></div>" +
+    '<div class="sk-meta">' + s.meta + '</div><div class="sk-desc">' + s.d + "</div></div>";
+}
+function renderBeastList() {
+  var beastList = document.getElementById("beastList");
+  var html = "";
+  ["Bosses", "Monsters"].forEach(function (g) {
+    html += "<h5>" + g + "</h5>";
+    BESTIARY.forEach(function (b, i) {
+      if (b.group !== g) return;
+      html += '<button class="beast-item' + (i === beastState.idx ? " active" : "") + '" data-i="' + i + '" style="--el:' + b.el + '">' +
+        '<svg viewBox="0 0 120 120">' + b.sig + "</svg>" +
+        '<span class="bi-txt"><span class="bi-name">' + b.name + '</span><span class="bi-sub">' + b.type + " · Lv " + b.level + "</span></span>" +
+        '<span class="dot"></span></button>';
+    });
+  });
+  beastList.innerHTML = html;
+  var btns = beastList.querySelectorAll(".beast-item");
+  for (var bi = 0; bi < btns.length; bi++) {
+    (function (btn) { btn.addEventListener("click", function () { selectBeast(+btn.dataset.i); }); })(btns[bi]);
+  }
+}
+function selectBeast(i) {
+  var b = BESTIARY[i];
+  var beastMain = document.getElementById("beastMain");
+  beastState.idx = i;
+  beastState.awake = false;
+  beastMain.style.setProperty("--el", b.el);
+  var threat = "";
+  for (var t = 0; t < 5; t++) threat += "<i" + (t < b.threat ? ' class="on"' : "") + "></i>";
+  beastMain.innerHTML =
+    '<div class="beast-head-row">' +
+      '<div class="beast-portrait-col">' +
+        '<div class="beast-portrait"><div class="aura"></div><svg class="beast-sigil" viewBox="0 0 120 120">' + b.sig + "</svg></div>" +
+        '<button class="awaken-btn" id="awakenBtn">Awaken · Super Appearance</button>' +
+      "</div>" +
+      '<div class="beast-info">' +
+        "<h3>" + b.name + "</h3>" +
+        '<div class="b-title">' + b.title + "</div>" +
+        '<p class="b-lore">' + b.lore + "</p>" +
+        '<div class="beast-stats">' +
+          beastStat("Level", b.level) + beastStat("Life", b.hp) + beastStat("Damage", b.dmg) +
+          beastStat("Element", b.elName) + beastStat("Found in", b.zone) +
+          '<div><div class="l">Threat</div><div class="threat">' + threat + "</div></div>" +
+        "</div>" +
+      "</div>" +
+    "</div>" +
+    '<div class="b-sec"><h5>New Skills</h5></div>' +
+    '<div class="sk-cards">' + b.skills.map(beastSkillCard).join("") + "</div>" +
+    '<div class="b-sec"><h5>Super Appearance</h5></div>' +
+    '<div class="awake-box">' +
+      '<div class="a-kicker">Awakened Form · ' + b.awake.when + "</div>" +
+      '<div class="a-name">' + b.awake.name + "</div>" +
+      '<p class="a-desc">' + b.awake.d + "</p>" +
+      '<div class="sk-card ult" id="ultCard"><svg class="ult-ico" viewBox="0 0 24 24">' + b.awake.ult.icon + '</svg><div><div class="sk-name">' + b.awake.ult.n + '</div><div class="sk-meta">' + b.awake.ult.meta + '</div><div class="sk-desc">' + b.awake.ult.d + "</div></div></div>" +
+    "</div>";
+  document.getElementById("awakenBtn").addEventListener("click", function () { setBeastAwake(!beastState.awake); });
+  renderBeastList();
+}
+function setBeastAwake(on) {
+  var b = BESTIARY[beastState.idx];
+  var beastMain = document.getElementById("beastMain");
+  beastState.awake = on;
+  var col = beastMain.querySelector(".beast-portrait-col");
+  var portrait = beastMain.querySelector(".beast-portrait");
+  beastMain.querySelector(".beast-sigil").innerHTML = on ? b.sigAwake : b.sig;
+  col.classList.toggle("awakened", on);
+  portrait.classList.toggle("awakened", on);
+  beastMain.querySelector("#ultCard").classList.toggle("lit", on);
+  document.getElementById("awakenBtn").textContent = on ? "Seal the Form" : "Awaken · Super Appearance";
+  if (on) {
+    portrait.classList.add("flash");
+    setTimeout(function () { portrait.classList.remove("flash"); }, 650);
+    sfx("level");
+  }
+}
+function openBestiary() {
+  resumeState = state;
+  state = "beast";
+  renderBeastList();
+  selectBeast(beastState.idx);
+  document.getElementById("ov-beast").classList.add("open");
+}
+function closeBestiary() {
+  document.getElementById("ov-beast").classList.remove("open");
+  state = resumeState;
+}
+renderBeastList();
+selectBeast(0);
+document.getElementById("btnBeast").addEventListener("click", function () {
+  if (state === "play" || state === "intermission") openBestiary();
+});
+document.getElementById("btnBeastClose").addEventListener("click", closeBestiary);
 
 /* ---------- main loop ---------- */
 resetPlayer();
