@@ -1002,6 +1002,20 @@ function lavaAt(x, y) {
   }
   return false;
 }
+function nearestInside(x, y) {
+  var M = curMap();
+  if (!M.inside) return { x: clamp(x, 60, ARENA - 60), y: clamp(y, 60, ARENA - 60) };
+  if (M.inside(x, y)) return { x: x, y: y };
+  /* adrift over the void — walk toward the realm's anchor until back on stone */
+  var ax = M.spawn ? M.spawn.x : ARENA / 2, ay = M.spawn ? M.spawn.y : ARENA / 2;
+  var steps = Math.max(1, Math.ceil(Math.hypot(ax - x, ay - y) / 25));
+  for (var s = 1; s <= steps; s++) {
+    var t = s / steps;
+    if (M.inside(x + (ax - x) * t, y + (ay - y) * t))
+      return { x: x + (ax - x) * t, y: y + (ay - y) * t };
+  }
+  return { x: ax, y: ay };
+}
 function confine(ent, ox, oy) {
   var M = curMap();
   if (!M.inside) {
@@ -1012,7 +1026,8 @@ function confine(ent, ox, oy) {
   if (!M.inside(ent.x, ent.y)) {
     if (M.inside(ox, ent.y)) ent.x = ox;
     else if (M.inside(ent.x, oy)) ent.y = oy;
-    else { ent.x = ox; ent.y = oy; }
+    else if (M.inside(ox, oy)) { ent.x = ox; ent.y = oy; }
+    else { var home = nearestInside(ent.x, ent.y); ent.x = home.x; ent.y = home.y; }
   }
 }
 function sampleInside(pad, minPlayerDist) {
@@ -2440,7 +2455,9 @@ function update(dt) {
   player.x = clamp(player.x + pmx * pspd * dt, 60, ARENA - 60);
   player.y = clamp(player.y + pmy * pspd * dt, 60, ARENA - 60);
   confine(player, pox, poy);
+  var psx = player.x, psy = player.y;
   collideSolids(player);
+  confine(player, psx, psy);
 
   /* vertical: leap physics + terrain following */
   var ground = groundZ(player.x, player.y);
@@ -2482,7 +2499,10 @@ function update(dt) {
       e.sumT = Math.max(0, e.sumT - dt);
       if (e.sumT <= 0 && enemies.length < 40) {
         e.sumT = 8;
-        for (var si = 0; si < 2; si++) spawnEnemy("imp", e.x + rand(-60, 60), e.y + rand(-60, 60));
+        for (var si = 0; si < 2; si++) {
+          var ip = nearestInside(e.x + rand(-60, 60), e.y + rand(-60, 60));
+          spawnEnemy("imp", ip.x, ip.y);
+        }
         addFloat(e.x, e.y, e.z + e.r + 40, "Rise!", "#c6523c", 14);
       }
     }
@@ -2560,7 +2580,11 @@ function update(dt) {
             e.ultSlam = false;
             var bx = player.x - e.x, by = player.y - e.y, bd = Math.hypot(bx, by) || 1;
             var drag = Math.min(bd - 40, 240);
-            if (drag > 0) { player.x += (bx / bd) * drag; player.y += (by / bd) * drag; }
+            if (drag > 0) {
+              var dox = player.x, doy = player.y;
+              player.x += (bx / bd) * drag; player.y += (by / bd) * drag;
+              confine(player, dox, doy);
+            }
             if (dist2(player.x, player.y, e.x, e.y) < slamR * slamR && player.invulnT <= 0) {
               hurtPlayer(Math.round(e.dmg * 1.4));
               player.frozenT = Math.max(player.frozenT, 1.0);
@@ -2671,8 +2695,10 @@ function update(dt) {
       var dd2 = ddx * ddx + ddy * ddy;
       if (dd2 > 0.01 && dd2 < rr * rr) {
         var dd = Math.sqrt(dd2), push = (rr - dd) / 2, nx = ddx / dd, ny = ddy / dd;
+        var o1x = e1.x, o1y = e1.y, o2x = e2.x, o2y = e2.y;
         e1.x -= nx * push; e1.y -= ny * push;
         e2.x += nx * push; e2.y += ny * push;
+        confine(e1, o1x, o1y); confine(e2, o2x, o2y);
       }
     }
   }
@@ -2698,8 +2724,9 @@ function update(dt) {
     var M = curMap();
     if (pr.life <= 0 || pr.x < 40 || pr.x > ARENA - 40 || pr.y < 40 || pr.y > ARENA - 40 || (M.inside && !M.inside(pr.x, pr.y))) {
       if (pr.kind === "corpse") { /* the hurled corpse rises as a Shambling Remnant */
-        spawnEnemy("imp", pr.x, pr.y);
-        addFloat(pr.x, pr.y, 30, "Rises!", "#8fb35a", 12);
+        var ci = nearestInside(pr.x, pr.y);
+        spawnEnemy("imp", ci.x, ci.y);
+        addFloat(ci.x, ci.y, 30, "Rises!", "#8fb35a", 12);
       }
       pr.dead = true; continue;
     }
